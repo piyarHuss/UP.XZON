@@ -1,118 +1,209 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src='//libtl.com/sdk.js' data-zone='10364706' data-sdk='show_10364706'></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>EarnMoney Pro</title>
+    
+    <!-- FIREBASE -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- ⚠️ MONETAG SCRIPT HERE -->
+    <!-- <script src="//kulroak.com/nt/xxxxxx/script.js"></script> -->
+
     <style>
         :root { --primary: #2d3436; --accent: #0984e3; --bg: #dfe6e9; --white: #ffffff; --success: #00b894; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
+        /* AUTH */
         #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 200; display: flex; flex-direction: column; justify-content: center; padding: 30px; }
-        .auth-title { font-size: 28px; font-weight: bold; margin-bottom: 5px; }
         .inp-field { width: 100%; padding: 15px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 12px; background: #f9f9f9; outline: none; }
         .main-btn { background: var(--primary); color: white; width: 100%; padding: 15px; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; margin-top: 10px; }
-        .toggle-link { margin-top: 20px; text-align: center; color: var(--accent); font-weight: bold; cursor: pointer; }
-
+        
+        /* HEADER */
         header { background: var(--white); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 10; }
-        header span { font-weight: bold; font-size: 18px; color: var(--primary); }
-
+        
+        /* CONTENT */
         .content-area { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 90px; display: none; }
         .content-area.active { display: block; }
-        .card { background: var(--white); border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        
+        /* HOME CARDS */
         .balance-box { text-align: center; padding: 20px; background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: white; border-radius: 16px; margin-bottom: 20px; }
         .balance-num { font-size: 40px; font-weight: 800; }
+        .card { background: var(--white); border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
         
-        .ad-btn { background: var(--primary); color: white; width: 100%; padding: 18px; border-radius: 12px; font-size: 18px; font-weight: bold; border: none; display: flex; justify-content: center; align-items: center; gap: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-        .ad-btn:disabled { background: #b2bec3; box-shadow: none; cursor: not-allowed; }
-        .progress-bar { height: 6px; background: #eee; border-radius: 3px; margin-top: 15px; overflow: hidden; }
-        .progress-fill { height: 100%; background: var(--success); width: 0%; transition: 0.3s; }
+        /* ADS LIST STYLE (Line by Line) */
+        .task-list { display: flex; flex-direction: column; gap: 10px; }
+        .task-btn { background: white; border: none; padding: 15px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.05); cursor: pointer; width: 100%; }
+        .task-btn:active { transform: scale(0.98); }
+        .task-btn:disabled { opacity: 0.6; background: #eee; }
+        .task-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; margin-right: 15px; font-size: 18px; }
         
-        .form-label { font-size: 14px; font-weight: bold; color: #636e72; margin-bottom: 8px; display: block; }
-        .form-select, .form-input { width: 100%; padding: 14px; border: 1px solid #dfe6e9; border-radius: 10px; background: #f4f6f7; font-size: 16px; outline: none; margin-bottom: 20px; }
-        .withdraw-btn { background: var(--primary); color: white; width: 100%; padding: 16px; border-radius: 10px; font-weight: bold; border: none; font-size: 16px; }
-        .invite-box { background: #f1f2f6; border-radius: 12px; padding: 15px; display: flex; align-items: center; margin-bottom: 15px; border: 1px solid #e1e1e1; }
-        .invite-link { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: #555; font-size: 14px; }
-        .action-row { display: flex; gap: 10px; }
-        .share-btn { flex: 1; background: var(--accent); color: white; padding: 12px; border-radius: 10px; border: none; font-weight: bold; }
-        .copy-btn { width: 50px; background: var(--primary); color: white; border-radius: 10px; border: none; font-size: 18px; }
+        /* INVITE PAGE (Restored Professional Style) */
+        .refer-banner { background: linear-gradient(45deg, #ff9f43, #ffca28); color: white; padding: 20px; border-radius: 15px; display: flex; align-items: center; gap: 15px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(255, 159, 67, 0.3); }
+        .refer-stats { display: flex; gap: 15px; margin-bottom: 25px; }
+        .stat-box { flex: 1; background: white; padding: 15px; border-radius: 12px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+        .stat-val { font-size: 22px; font-weight: bold; color: var(--primary); display: block; }
+        .stat-lbl { font-size: 12px; color: gray; }
+        
+        .invite-link-box { background: #f1f2f6; border: 1px dashed #bbb; padding: 12px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .link-text { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: #555; font-size: 13px; flex: 1; margin-right: 10px; }
+        
+        .share-full-btn { width: 100%; background: var(--accent); color: white; padding: 15px; border-radius: 12px; border: none; font-weight: bold; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 5px 15px rgba(9, 132, 227, 0.3); }
 
+        /* WALLET & FORM */
+        .form-select, .form-input { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid #dfe6e9; border-radius: 10px; background: #f4f6f7; outline: none; }
+        .withdraw-btn { background: var(--primary); color: white; width: 100%; padding: 16px; border-radius: 10px; font-weight: bold; border: none; }
+
+        /* NAV & LOADER */
         .bottom-nav { position: fixed; bottom: 20px; left: 20px; right: 20px; background: #2d3436; border-radius: 20px; display: flex; justify-content: space-around; padding: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); z-index: 50; }
         .nav-item { color: #b2bec3; font-size: 20px; } .nav-item.active { color: var(--white); }
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; display: none; justify-content: center; align-items: center; color: white; flex-direction: column; }
+        #ad-loader { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:999; display:none; justify-content:center; align-items:center; color:white; flex-direction:column; }
+        
+        /* TIMER BOX */
+        #timer-box { text-align: center; padding: 20px; background: #fff0f0; border-radius: 12px; border: 1px solid #ffcccc; display: none; margin-bottom: 20px; }
+        .progress-bar { height: 6px; background: #eee; border-radius: 3px; margin-top: 10px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--success); width: 0%; transition: 0.3s; }
     </style>
 </head>
 <body>
 
+    <!-- AUTH -->
     <div id="login-screen">
-        <h1 class="auth-title">Welcome</h1>
-        <p style="color:#888; margin-bottom:30px">Enter details to continue</p>
-        <input type="text" id="inp-name" class="inp-field" placeholder="Full Name (For Register)" style="display:none">
-        <input type="email" id="inp-email" class="inp-field" placeholder="Email Address">
+        <h2 style="margin-bottom:20px">Welcome</h2>
+        <input type="text" id="inp-name" class="inp-field" placeholder="Full Name" style="display:none">
+        <input type="email" id="inp-email" class="inp-field" placeholder="Email">
         <input type="password" id="inp-pass" class="inp-field" placeholder="Password">
+        <input type="text" id="inp-ref-code" class="inp-field" placeholder="Referral Code" style="display:none">
         <button class="main-btn" onclick="handleAuth()" id="btn-auth">Login</button>
-        <p id="error-msg" style="color:red; margin-top:10px; font-size:13px; text-align:center"></p>
-        <div class="toggle-link" onclick="toggleAuth()">Create new account</div>
+        <p id="error-msg" style="color:red; margin-top:10px; font-size:12px; text-align:center"></p>
+        <p style="text-align:center; color:#0984e3; margin-top:20px" onclick="toggleAuth()">Create Account</p>
     </div>
 
+    <!-- MAIN -->
     <header id="app-header" style="display:none">
-        <span id="user-display">User</span>
+        <span style="font-weight:bold">Hi, <span id="user-display">User</span></span>
         <i class="fas fa-power-off" style="color:red" onclick="logout()"></i>
     </header>
 
+    <!-- HOME -->
     <div id="home" class="content-area">
         <div class="balance-box">
-            <p style="opacity:0.8">Total Balance</p>
+            <p style="opacity:0.8; margin:0">Total Balance</p>
             <div class="balance-num">₹<span id="bal-disp">0.00</span></div>
-            <div style="font-size:12px; margin-top:5px; background:rgba(0,0,0,0.2); display:inline-block; padding:3px 10px; border-radius:10px">
-                Daily Ads: <span id="daily-ads">0</span>
-            </div>
+            <div style="font-size:12px; margin-top:5px; background:rgba(255,255,255,0.2); display:inline-block; padding:3px 12px; border-radius:15px">Daily Ads: <span id="daily-ads">0</span></div>
         </div>
+
         <div class="card">
-            <h3>Task Status</h3>
-            <p style="color:gray; font-size:13px; margin:5px 0">Target: Watch <b id="target-ads">...</b> ads to get <b style="color:green">₹<span id="reward-val">...</span></b></p>
+            <div style="display:flex; justify-content:space-between; font-size:13px; color:gray; margin-bottom:5px">
+                <span>Target: <b id="target-ads" style="color:#333">0</b> Ads</span>
+                <span>Reward: <b style="color:#00b894">₹<span id="reward-val">0</span></b></span>
+            </div>
             <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
-            <p style="text-align:right; font-size:12px; margin-top:5px"><span id="prog-text">0/0</span> Completed</p>
+            <div style="text-align:right; font-size:11px; margin-top:5px; color:gray"><span id="prog-text">0/0</span> Completed</div>
         </div>
-        <button class="ad-btn" id="watch-btn"><i class="fas fa-play"></i> Watch Ad</button>
-        <div id="timer-box" style="text-align:center; margin-top:15px; display:none;">
-            <p style="color:red; font-weight:bold;">Task Completed!</p>
-            <p style="color:gray; font-size:14px;">Next ads available in:</p>
+
+        <!-- TIMER MESSAGE -->
+        <div id="timer-box">
+            <h3 style="margin:0; color:#d63031">Cooldown Active</h3>
+            <p style="font-size:13px; color:gray">Next task in:</p>
             <h2 id="countdown-text" style="color:#2d3436; margin:5px 0;">00:00:00</h2>
         </div>
-        <p id="short-timer" style="text-align:center; margin-top:10px; color:gray; display:none">Wait <span id="time-left">0</span>s</p>
+
+        <!-- 3 ADS LIST -->
+        <div class="task-list" id="task-list-container">
+            <button class="task-btn" onclick="watchAd1()">
+                <div style="display:flex; align-items:center">
+                    <div class="task-icon" style="background:#ff7675"><i class="fas fa-play"></i></div>
+                    <div style="text-align:left">
+                        <div style="font-weight:bold; color:#333">Premium Task</div>
+                        <div style="font-size:12px; color:gray">Watch Video Ad</div>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-right" style="color:#ccc"></i>
+            </button>
+
+            <button class="task-btn" onclick="watchAd2()">
+                <div style="display:flex; align-items:center">
+                    <div class="task-icon" style="background:#74b9ff"><i class="fas fa-robot"></i></div>
+                    <div style="text-align:left">
+                        <div style="font-weight:bold; color:#333">Auto Session</div>
+                        <div style="font-size:12px; color:gray">Start Auto Ads</div>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-right" style="color:#ccc"></i>
+            </button>
+
+            <button class="task-btn" onclick="watchAd3()">
+                <div style="display:flex; align-items:center">
+                    <div class="task-icon" style="background:#fdcb6e"><i class="fas fa-gift"></i></div>
+                    <div style="text-align:left">
+                        <div style="font-weight:bold; color:#333">Bonus Task</div>
+                        <div style="font-size:12px; color:gray">View Popup</div>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-right" style="color:#ccc"></i>
+            </button>
+        </div>
+        
+        <p id="short-timer" style="text-align:center; margin-top:15px; color:gray; display:none; font-size:13px">Wait <b id="time-left">0</b>s for next ad</p>
     </div>
 
+    <!-- WALLET -->
     <div id="wallet" class="content-area">
         <div class="card">
-            <h2 style="margin-bottom:20px">Withdraw</h2>
-            <label class="form-label">Payment Method</label>
-            <select id="withdraw-method" class="form-select" onchange="updatePlaceholder()"><option value="">Select Method</option></select>
-            <label class="form-label" id="account-label">Account Number / ID</label>
-            <input type="text" id="withdraw-details" class="form-input" placeholder="Enter details">
+            <h3>Withdraw</h3><br>
+            <label class="form-label">Method</label>
+            <select id="withdraw-method" class="form-select" onchange="updatePlaceholder()"><option value="">Select</option></select>
+            <label class="form-label" id="account-label">Details</label>
+            <input type="text" id="withdraw-details" class="form-input" placeholder="Enter Details">
             <label class="form-label">Amount</label>
-            <input type="number" id="withdraw-amount" class="form-input" placeholder="Min: 100">
+            <input type="number" id="withdraw-amount" class="form-input" placeholder="Min Amount">
             <button class="withdraw-btn" onclick="requestWithdraw()">Request Withdraw</button>
         </div>
-        <div style="padding:0 20px">
-            <h4>History</h4>
-            <div id="history-list" style="margin-top:10px"></div>
-        </div>
+        <div style="padding:0 20px"><h4>History</h4><div id="history-list" style="margin-top:10px"></div></div>
     </div>
 
+    <!-- INVITE (RESTORED PROFESSIONAL DESIGN) -->
     <div id="invite" class="content-area">
-        <div class="card">
-            <h2 style="margin-bottom:10px">Invite Friends</h2>
-            <p style="color:gray; font-size:14px; margin-bottom:20px">Share your link and earn extra rewards.</p>
-            <div class="invite-box"><div class="invite-link" id="ref-link">...</div></div>
-            <div class="action-row">
-                <button class="share-btn" onclick="shareLink()"><i class="fab fa-telegram-plane"></i> Share</button>
-                <button class="copy-btn" onclick="copyLink()"><i class="far fa-copy"></i></button>
+        <div style="padding: 0 10px;">
+            <!-- Banner -->
+            <div class="refer-banner">
+                <i class="fas fa-gift" style="font-size:40px"></i>
+                <div>
+                    <div style="font-weight:bold; font-size:18px">Refer & Earn</div>
+                    <div style="font-size:13px; opacity:0.9">Get ₹0.002 per friend</div>
+                </div>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="refer-stats">
+                <div class="stat-box">
+                    <span class="stat-val" id="total-ref">0</span>
+                    <span class="stat-lbl">Total Invites</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-val">₹<span id="ref-earn">0.00</span></span>
+                    <span class="stat-lbl">Earnings</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <p style="font-weight:bold; color:#333; margin-bottom:10px">Your Unique Link</p>
+                <div class="invite-link-box">
+                    <div class="link-text" id="ref-link">Loading...</div>
+                    <i class="far fa-copy" style="color:var(--accent); font-size:20px; cursor:pointer" onclick="copyLink()"></i>
+                </div>
+                
+                <button class="share-full-btn" onclick="shareLink()">
+                    <i class="fab fa-telegram-plane"></i> Share on Telegram
+                </button>
             </div>
         </div>
     </div>
@@ -123,12 +214,7 @@
         <i class="fas fa-user-plus nav-item" onclick="goTab('invite', this)"></i>
     </div>
 
-    <div id="ad-modal" class="modal">
-        <div style="border:4px solid #fff; border-top:4px solid var(--accent); border-radius:50%; width:40px; height:40px; animation:spin 1s linear infinite"></div>
-        <h3 style="margin-top:20px">Ad Playing...</h3>
-        <p>Wait <span id="ad-dur">5</span>s</p>
-    </div>
-    <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+    <div id="ad-loader"><i class="fas fa-spinner fa-spin" style="font-size:40px"></i><p style="margin-top:20px">Loading Ad...</p></div>
 
     <script>
         const firebaseConfig = {
@@ -144,48 +230,35 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        let user = null;
-        let isLogin = true;
-        let config = { rewardPerAd: 1, minWithdraw: 100, adsTarget: 10, cooldownTime: 10, adDuration: 5, paymentMethods: [] };
-        let lastAd = 0;
-        let adProgress = 0;
-        let longCooldownEnd = 0;
-        let updateInterval;
+        let user = null, isLogin = true;
+        let config = { rewardPerAd: 1, minWithdraw: 100, adsTarget: 10, cooldownTime: 10, longCooldownHours: 14, paymentMethods: [] };
+        let lastAd = 0, adProgress = 0, lastTaskTime = 0, updateInterval;
 
         function toggleAuth() {
             isLogin = !isLogin;
             document.getElementById('btn-auth').innerText = isLogin ? "Login" : "Register";
             document.getElementById('inp-name').style.display = isLogin ? "none" : "block";
-            document.querySelector('.toggle-link').innerText = isLogin ? "Create new account" : "Back to Login";
+            document.getElementById('inp-ref-code').style.display = isLogin ? "none" : "block";
         }
-
         function handleAuth() {
-            const e = document.getElementById('inp-email').value;
-            const p = document.getElementById('inp-pass').value;
-            const n = document.getElementById('inp-name').value;
-            const err = document.getElementById('error-msg');
-            if(!e || !p) { err.innerText = "Fill all fields"; return; }
-
+            const e = document.getElementById('inp-email').value, p = document.getElementById('inp-pass').value;
+            const n = document.getElementById('inp-name').value, refCode = document.getElementById('inp-ref-code').value.trim();
+            if(!e || !p) return alert("Fill all fields");
             if(isLogin) {
-                auth.signInWithEmailAndPassword(e, p).catch(er => err.innerText = er.message);
+                auth.signInWithEmailAndPassword(e, p).catch(err => alert(err.message));
             } else {
-                if(!n) { err.innerText = "Enter Name"; return; }
-                auth.createUserWithEmailAndPassword(e, p).then(cred => {
-                    cred.user.updateProfile({displayName: n}).then(() => {
-                        // Create User Data (AUTO-FIX for Error 2)
-                        createUserData(cred.user.uid, n, e, p);
+                if(!n) return alert("Enter Name");
+                auth.createUserWithEmailAndPassword(e, p).then(async cred => {
+                    await cred.user.updateProfile({displayName: n});
+                    if(refCode) {
+                        const refSnap = await db.collection("users").doc(refCode).get();
+                        if(refSnap.exists) db.collection("users").doc(refCode).update({ balance: firebase.firestore.FieldValue.increment(0.002), referralsCount: firebase.firestore.FieldValue.increment(1), referralEarnings: firebase.firestore.FieldValue.increment(0.002) });
+                    }
+                    db.collection("users").doc(cred.user.uid).set({
+                        name: n, email: e, password: p, balance: 0, adsWatchedTotal: 0, dailyAds: 0, adProgress: 0, lastTaskTime: 0, referralsCount: 0, referralEarnings: 0, joined: new Date().toDateString()
                     });
-                }).catch(er => err.innerText = er.message);
+                }).catch(err => alert(err.message));
             }
-        }
-
-        function createUserData(uid, name, email, pass) {
-            db.collection("users").doc(uid).set({
-                name: name, email: email, password: pass || "Login via Gmail",
-                balance: 0, adsWatchedTotal: 0, dailyAds: 0,
-                adProgress: 0, longCooldownEnd: 0, lastAdTime: 0,
-                joined: new Date().toDateString()
-            }, { merge: true }); // Merge prevents overwriting existing data if present
         }
 
         auth.onAuthStateChanged(u => {
@@ -195,167 +268,142 @@
                 document.getElementById('app-header').style.display = 'flex';
                 document.getElementById('nav-bar').style.display = 'flex';
                 document.getElementById('home').classList.add('active');
-                document.getElementById('user-display').innerText = u.displayName || "User";
-                document.getElementById('ref-link').innerText = "https://t.me/myapp?start=" + u.uid.substr(0,5).toUpperCase();
-                
-                loadConfig();
-                syncUser();
+                document.getElementById('user-display').innerText = u.displayName;
+                document.getElementById('ref-link').innerText = "https://t.me/RUPEESX_bot?start=" + u.uid;
+                loadConfig(); syncUser();
             } else {
                 document.getElementById('login-screen').style.display = 'flex';
                 document.getElementById('app-header').style.display = 'none';
                 document.getElementById('nav-bar').style.display = 'none';
             }
         });
-
         function logout() { auth.signOut().then(() => location.reload()); }
 
         function loadConfig() {
             db.collection("settings").doc("config").onSnapshot(doc => {
-                if(doc.exists) { config = { ...config, ...doc.data() }; updateUI(); }
+                if(doc.exists) { config = { ...config, ...doc.data() }; updateUI(); checkStatus(); }
             });
         }
-
         function syncUser() {
-            // FIX: If document doesn't exist, create it immediately
             db.collection("users").doc(user.uid).onSnapshot(doc => {
-                if(!doc.exists) {
-                    createUserData(user.uid, user.displayName, user.email, "");
-                    return;
-                }
+                if(!doc.exists) return;
                 const d = doc.data();
-                document.getElementById('bal-disp').innerText = d.balance.toFixed(2);
+                document.getElementById('bal-disp').innerText = d.balance.toFixed(3);
                 document.getElementById('daily-ads').innerText = d.dailyAds || 0;
-                adProgress = d.adProgress || 0;
-                lastAd = d.lastAdTime || 0;
-                longCooldownEnd = d.longCooldownEnd || 0;
-                checkStatus();
-                updateUI();
+                document.getElementById('total-ref').innerText = d.referralsCount || 0;
+                document.getElementById('ref-earn').innerText = (d.referralEarnings || 0).toFixed(3);
+                adProgress = d.adProgress || 0; lastAd = d.lastAdTime || 0; lastTaskTime = d.lastTaskTime || 0;
+                checkStatus(); updateUI();
             });
-            
-            // HISTORY FIX: Catch Index Error
             db.collection("withdrawals").where("userId", "==", user.uid).orderBy("date", "desc").limit(5).onSnapshot(s => {
-                const histDiv = document.getElementById('history-list');
-                histDiv.innerHTML = '';
-                s.forEach(d => {
-                    const data = d.data();
-                    histDiv.innerHTML += `<div style="background:#f9f9f9; padding:10px; border-radius:8px; margin-bottom:8px; display:flex; justify-content:space-between; font-size:13px"><span>${data.method}</span><span style="font-weight:bold">₹${data.amount}</span><span style="color:${data.status=='paid'?'green':(data.status=='rejected'?'red':'orange')}">${data.status}</span></div>`;
-                });
-            }, error => {
-                // If index error happens, allow time to fix but don't crash app
-                console.log("Index missing, history might be empty: " + error.message);
+                const h = document.getElementById('history-list'); h.innerHTML = '';
+                s.forEach(d => { const t = d.data(); h.innerHTML += `<div style="background:#eee; padding:10px; margin-bottom:5px; border-radius:5px; font-size:13px; display:flex; justify-content:space-between"><span>${t.method}</span><b>₹${t.amount}</b><span>${t.status}</span></div>`; });
             });
         }
-
         function updateUI() {
             document.getElementById('target-ads').innerText = config.adsTarget;
             document.getElementById('reward-val').innerText = config.rewardPerAd;
-            document.getElementById('withdraw-amount').placeholder = "Min: " + config.minWithdraw;
             const pct = (adProgress / config.adsTarget) * 100;
             document.getElementById('prog-fill').style.width = pct + "%";
             document.getElementById('prog-text').innerText = `${adProgress}/${config.adsTarget}`;
             const sel = document.getElementById('withdraw-method');
             if(sel.options.length === 1 && config.paymentMethods) {
-                config.paymentMethods.forEach(m => { const opt = document.createElement('option'); opt.value = m; opt.innerText = m; sel.appendChild(opt); });
+                sel.innerHTML = '<option value="">Select</option>';
+                config.paymentMethods.forEach(m => sel.innerHTML += `<option value="${m}">${m}</option>`);
             }
         }
 
+        // --- REAL-TIME TIME CONTROL ---
         function checkStatus() {
             clearInterval(updateInterval);
             const now = Date.now();
-            const btn = document.getElementById('watch-btn');
+            const taskList = document.getElementById('task-list-container');
             const timerBox = document.getElementById('timer-box');
             const shortTimer = document.getElementById('short-timer');
+            const btns = document.querySelectorAll('.task-btn');
 
-            if(now < longCooldownEnd) {
-                btn.disabled = true; btn.style.display = "none"; timerBox.style.display = "block"; shortTimer.style.display = "none";
+            const dynamicEndTime = lastTaskTime + (config.longCooldownHours * 60 * 60 * 1000);
+
+            if(lastTaskTime > 0 && now < dynamicEndTime) {
+                taskList.style.display = "none";
+                timerBox.style.display = "block";
+                shortTimer.style.display = "none";
+                
                 updateInterval = setInterval(() => {
-                    const timeLeft = longCooldownEnd - Date.now();
-                    if(timeLeft <= 0) { db.collection("users").doc(user.uid).update({ longCooldownEnd: 0 }); } 
+                    const endTime = lastTaskTime + (config.longCooldownHours * 60 * 60 * 1000);
+                    const rem = endTime - Date.now();
+                    if(rem <= 0) { db.collection("users").doc(user.uid).update({ lastTaskTime: 0 }); }
                     else {
-                        const h = Math.floor((timeLeft / (1000 * 60 * 60)));
-                        const m = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-                        const s = Math.floor((timeLeft % (1000 * 60)) / 1000);
+                        const h = Math.floor(rem / 3600000), m = Math.floor((rem % 3600000) / 60000), s = Math.floor((rem % 60000) / 1000);
                         document.getElementById('countdown-text').innerText = `${h}h ${m}m ${s}s`;
                     }
                 }, 1000);
                 return;
-            } 
-            timerBox.style.display = "none"; btn.style.display = "flex";
+            }
+
+            taskList.style.display = "flex";
+            timerBox.style.display = "none";
 
             const diff = (now - lastAd)/1000;
             if(diff < config.cooldownTime) {
-                btn.disabled = true; shortTimer.style.display = "block";
+                btns.forEach(b => b.disabled = true);
+                shortTimer.style.display = "block";
                 updateInterval = setInterval(() => {
                     const rem = Math.ceil(config.cooldownTime - (Date.now() - lastAd)/1000);
                     if(rem > 0) document.getElementById('time-left').innerText = rem;
-                    else { btn.disabled = false; shortTimer.style.display = "none"; clearInterval(updateInterval); }
+                    else { btns.forEach(b => b.disabled = false); shortTimer.style.display = "none"; clearInterval(updateInterval); }
                 }, 1000);
-            } else { btn.disabled = false; shortTimer.style.display = "none"; }
+            } else { btns.forEach(b => b.disabled = false); shortTimer.style.display = "none"; }
         }
 
-        document.getElementById('watch-btn').onclick = () => {
-            const modal = document.getElementById('ad-modal');
-            const txt = document.getElementById('ad-dur');
-            let t = config.adDuration;
-            modal.style.display = 'flex'; txt.innerText = t;
-            const timer = setInterval(() => { t--; txt.innerText = t; if(t <= 0) { clearInterval(timer); modal.style.display = 'none'; finishAd(); } }, 1000);
-        };
+        // --- ADS LOGIC ---
+        function runMonetagAd(callback) {
+            const loader = document.getElementById('ad-loader');
+            if (typeof show_10364706 !== 'function') { alert("Ad script loading... Check internet"); return; }
+            loader.style.display = "flex";
+            show_10364706().then(() => { loader.style.display = "none"; callback(); }).catch(e => { loader.style.display = "none"; alert("Ad Failed/Closed"); });
+        }
+
+        function watchAd1() { runMonetagAd(() => finishAd()); }
+        function watchAd2() { 
+            if (typeof show_10364706 === 'function') { show_10364706({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false } }); alert("Auto Ads Started."); finishAd(); } 
+            else alert("Ad script not ready"); 
+        }
+        function watchAd3() { 
+            if (typeof show_10364706 === 'function') { show_10364706('pop'); finishAd(); } 
+            else alert("Ad script not ready"); 
+        }
 
         function finishAd() {
-            const now = Date.now();
-            const newProg = adProgress + 1;
-            let updateData = {
-                adsWatchedTotal: firebase.firestore.FieldValue.increment(1),
-                dailyAds: firebase.firestore.FieldValue.increment(1),
-                lastAdTime: now,
-                adProgress: newProg
-            };
+            const now = Date.now(), newProg = adProgress + 1;
+            let updateData = { adsWatchedTotal: firebase.firestore.FieldValue.increment(1), dailyAds: firebase.firestore.FieldValue.increment(1), lastAdTime: now, adProgress: newProg };
             if(newProg >= config.adsTarget) {
                 updateData.balance = firebase.firestore.FieldValue.increment(config.rewardPerAd);
                 updateData.adProgress = 0;
-                updateData.longCooldownEnd = now + (14 * 60 * 60 * 1000); 
+                updateData.lastTaskTime = now;
                 alert(`Target Completed! Reward ₹${config.rewardPerAd} Added.`);
             }
             db.collection("users").doc(user.uid).update(updateData);
         }
 
         function updatePlaceholder() {
-            const m = document.getElementById('withdraw-method').value;
-            const inp = document.getElementById('withdraw-details');
+            const m = document.getElementById('withdraw-method').value, inp = document.getElementById('withdraw-details');
             if(m.toLowerCase().includes('upi')) { document.getElementById('account-label').innerText = "UPI ID"; inp.placeholder = "example@upi"; }
-            else if(m) { document.getElementById('account-label').innerText = "Account Number / ID"; inp.placeholder = "Enter Details"; }
+            else if(m) { document.getElementById('account-label').innerText = "Account Number"; inp.placeholder = "Enter Details"; }
         }
-
         function requestWithdraw() {
-            const m = document.getElementById('withdraw-method').value;
-            const d = document.getElementById('withdraw-details').value;
-            const a = parseFloat(document.getElementById('withdraw-amount').value);
-            const cur = parseFloat(document.getElementById('bal-disp').innerText);
-
+            const m = document.getElementById('withdraw-method').value, d = document.getElementById('withdraw-details').value, a = parseFloat(document.getElementById('withdraw-amount').value), cur = parseFloat(document.getElementById('bal-disp').innerText);
             if(!m || !d || !a) return alert("Fill all fields");
-            if(a < config.minWithdraw) return alert("Min withdraw is " + config.minWithdraw);
+            if(a < config.minWithdraw) return alert("Min: "+config.minWithdraw);
             if(a > cur) return alert("Insufficient Balance");
-
-            db.collection("withdrawals").add({
-                userId: user.uid, userName: user.displayName, method: m, details: d, amount: a, status: 'pending', date: new Date()
-            }).then(() => {
-                db.collection("users").doc(user.uid).update({ balance: firebase.firestore.FieldValue.increment(-a) });
-                alert("Request Sent!");
-                document.getElementById('withdraw-amount').value = '';
+            db.collection("withdrawals").add({userId: user.uid, userName: user.displayName, method: m, details: d, amount: a, status: 'pending', date: new Date()}).then(()=>{
+                db.collection("users").doc(user.uid).update({balance: firebase.firestore.FieldValue.increment(-a)});
+                alert("Success!");
             });
         }
-
-        function copyLink() { navigator.clipboard.writeText(document.getElementById('ref-link').innerText); alert("Copied!"); }
-        function shareLink() {
-            const txt = document.getElementById('ref-link').innerText;
-            if(navigator.share) navigator.share({title:'App', text:'Join Now', url:txt}); else copyLink();
-        }
-        function goTab(id, el) {
-            document.querySelectorAll('.content-area').forEach(d=>d.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
-            if(el) el.classList.add('active');
-        }
+        function copyLink() { navigator.clipboard.writeText(document.getElementById('ref-link').innerText); alert("Link Copied!"); }
+        function shareLink() { const t = document.getElementById('ref-link').innerText; if(navigator.share) navigator.share({title:'Earn', url:t}); else copyLink(); }
+        function goTab(id, el) { document.querySelectorAll('.content-area').forEach(d=>d.classList.remove('active')); document.getElementById(id).classList.add('active'); document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active')); if(el) el.classList.add('active'); }
     </script>
 </body>
 </html>
