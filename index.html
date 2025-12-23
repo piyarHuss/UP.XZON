@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script src='//libtl.com/sdk.js' data-zone='10364706' data-sdk='show_10364706'></script>
+    <script src='//libtl.com/sdk.js' data-zone='10364706' data-sdk='show_10364706'></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>EarnMoney Pro</title>
@@ -21,7 +21,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
-        /* AUTH */
+        /* AUTH SCREEN */
         #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 200; display: flex; flex-direction: column; justify-content: center; padding: 30px; }
         .inp-field { width: 100%; padding: 15px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 12px; background: #f9f9f9; outline: none; }
         .main-btn { background: var(--primary); color: white; width: 100%; padding: 15px; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; margin-top: 10px; }
@@ -33,48 +33,52 @@
         .content-area { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 90px; display: none; }
         .content-area.active { display: block; }
         
-        /* HOME CARDS */
+        /* BALANCE CARD */
         .balance-box { text-align: center; padding: 20px; background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: white; border-radius: 16px; margin-bottom: 20px; }
         .balance-num { font-size: 40px; font-weight: 800; }
-        .card { background: var(--white); border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
         
-        /* ADS LIST STYLE (Line by Line) */
-        .task-list { display: flex; flex-direction: column; gap: 10px; }
-        .task-btn { background: white; border: none; padding: 15px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.05); cursor: pointer; width: 100%; }
-        .task-btn:active { transform: scale(0.98); }
-        .task-btn:disabled { opacity: 0.6; background: #eee; }
-        .task-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; margin-right: 15px; font-size: 18px; }
+        /* 3 TASKS STYLE */
+        .task-container { display: flex; flex-direction: column; gap: 12px; }
+        .task-card {
+            background: white; padding: 15px; border-radius: 15px;
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: relative; overflow: hidden;
+        }
+        .task-left { display: flex; align-items: center; gap: 15px; }
+        .task-icon { width: 45px; height: 45px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; }
+        .task-btn { padding: 8px 15px; background: var(--primary); color: white; border: none; border-radius: 20px; font-size: 12px; font-weight: bold; cursor: pointer; }
+        .task-btn:disabled { background: #ccc; cursor: not-allowed; }
         
-        /* INVITE PAGE (Restored Professional Style) */
-        .refer-banner { background: linear-gradient(45deg, #ff9f43, #ffca28); color: white; padding: 20px; border-radius: 15px; display: flex; align-items: center; gap: 15px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(255, 159, 67, 0.3); }
-        .refer-stats { display: flex; gap: 15px; margin-bottom: 25px; }
-        .stat-box { flex: 1; background: white; padding: 15px; border-radius: 12px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
-        .stat-val { font-size: 22px; font-weight: bold; color: var(--primary); display: block; }
-        .stat-lbl { font-size: 12px; color: gray; }
-        
-        .invite-link-box { background: #f1f2f6; border: 1px dashed #bbb; padding: 12px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .link-text { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: #555; font-size: 13px; flex: 1; margin-right: 10px; }
-        
-        .share-full-btn { width: 100%; background: var(--accent); color: white; padding: 15px; border-radius: 12px; border: none; font-weight: bold; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 5px 15px rgba(9, 132, 227, 0.3); }
+        /* COOLDOWN OVERLAY */
+        .cooldown-mask {
+            position: absolute; top:0; left:0; width:100%; height:100%;
+            background: rgba(255,255,255,0.9); display: none;
+            align-items: center; justify-content: center;
+            color: #d63031; font-weight: bold; font-size: 14px;
+        }
 
-        /* WALLET & FORM */
-        .form-select, .form-input { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid #dfe6e9; border-radius: 10px; background: #f4f6f7; outline: none; }
-        .withdraw-btn { background: var(--primary); color: white; width: 100%; padding: 16px; border-radius: 10px; font-weight: bold; border: none; }
+        /* INVITE PAGE (Professional Style) */
+        .refer-banner { background: linear-gradient(45deg, #ff9f43, #ffca28); color: white; padding: 20px; border-radius: 15px; display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+        .refer-stats { display: flex; gap: 10px; margin-bottom: 20px; }
+        .stat-box { flex: 1; background: white; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid #ddd; }
+        .stat-val { font-size: 20px; font-weight: bold; color: var(--primary); display: block; }
+        .invite-box { background: #eef2ff; padding: 12px; border-radius: 10px; border: 1px dashed var(--accent); display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .invite-link { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--accent); font-weight: bold; font-size: 13px; flex: 1; margin-right: 10px; }
+        .share-btn { width: 100%; background: var(--accent); color: white; padding: 15px; border-radius: 12px; border: none; font-weight: bold; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+        /* WALLET */
+        .card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; }
+        .form-select, .form-input { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 10px; }
+        .withdraw-btn { width: 100%; padding: 15px; background: var(--primary); color: white; border-radius: 10px; font-weight: bold; border: none; }
 
         /* NAV & LOADER */
         .bottom-nav { position: fixed; bottom: 20px; left: 20px; right: 20px; background: #2d3436; border-radius: 20px; display: flex; justify-content: space-around; padding: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); z-index: 50; }
         .nav-item { color: #b2bec3; font-size: 20px; } .nav-item.active { color: var(--white); }
         #ad-loader { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:999; display:none; justify-content:center; align-items:center; color:white; flex-direction:column; }
-        
-        /* TIMER BOX */
-        #timer-box { text-align: center; padding: 20px; background: #fff0f0; border-radius: 12px; border: 1px solid #ffcccc; display: none; margin-bottom: 20px; }
-        .progress-bar { height: 6px; background: #eee; border-radius: 3px; margin-top: 10px; overflow: hidden; }
-        .progress-fill { height: 100%; background: var(--success); width: 0%; transition: 0.3s; }
     </style>
 </head>
 <body>
 
-    <!-- AUTH -->
     <div id="login-screen">
         <h2 style="margin-bottom:20px">Welcome</h2>
         <input type="text" id="inp-name" class="inp-field" placeholder="Full Name" style="display:none">
@@ -86,7 +90,6 @@
         <p style="text-align:center; color:#0984e3; margin-top:20px" onclick="toggleAuth()">Create Account</p>
     </div>
 
-    <!-- MAIN -->
     <header id="app-header" style="display:none">
         <span style="font-weight:bold">Hi, <span id="user-display">User</span></span>
         <i class="fas fa-power-off" style="color:red" onclick="logout()"></i>
@@ -100,111 +103,91 @@
             <div style="font-size:12px; margin-top:5px; background:rgba(255,255,255,0.2); display:inline-block; padding:3px 12px; border-radius:15px">Daily Ads: <span id="daily-ads">0</span></div>
         </div>
 
-        <div class="card">
-            <div style="display:flex; justify-content:space-between; font-size:13px; color:gray; margin-bottom:5px">
-                <span>Target: <b id="target-ads" style="color:#333">0</b> Ads</span>
-                <span>Reward: <b style="color:#00b894">₹<span id="reward-val">0</span></b></span>
-            </div>
-            <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
-            <div style="text-align:right; font-size:11px; margin-top:5px; color:gray"><span id="prog-text">0/0</span> Completed</div>
-        </div>
+        <h3 style="margin:0 0 15px 0; color:#333">Daily Tasks</h3>
 
-        <!-- TIMER MESSAGE -->
-        <div id="timer-box">
-            <h3 style="margin:0; color:#d63031">Cooldown Active</h3>
-            <p style="font-size:13px; color:gray">Next task in:</p>
-            <h2 id="countdown-text" style="color:#2d3436; margin:5px 0;">00:00:00</h2>
-        </div>
-
-        <!-- 3 ADS LIST -->
-        <div class="task-list" id="task-list-container">
-            <button class="task-btn" onclick="watchAd1()">
-                <div style="display:flex; align-items:center">
+        <div class="task-container" id="task-list">
+            
+            <!-- TASK 1 -->
+            <div class="task-card">
+                <div class="task-left">
                     <div class="task-icon" style="background:#ff7675"><i class="fas fa-play"></i></div>
-                    <div style="text-align:left">
-                        <div style="font-weight:bold; color:#333">Premium Task</div>
-                        <div style="font-size:12px; color:gray">Watch Video Ad</div>
+                    <div>
+                        <div style="font-weight:bold">Premium Task</div>
+                        <div style="font-size:12px; color:gray">Target: <span id="tgt-1">10</span> | ₹<span id="rwd-1">0.02</span></div>
                     </div>
                 </div>
-                <i class="fas fa-chevron-right" style="color:#ccc"></i>
-            </button>
+                <button class="task-btn" id="btn-1" onclick="runTask(1)">Watch (<span id="prog-1">0</span>)</button>
+                <div class="cooldown-mask" id="cd-1">Wait <span id="tmr-1" style="margin-left:5px">00:00</span></div>
+            </div>
 
-            <button class="task-btn" onclick="watchAd2()">
-                <div style="display:flex; align-items:center">
+            <!-- TASK 2 -->
+            <div class="task-card">
+                <div class="task-left">
                     <div class="task-icon" style="background:#74b9ff"><i class="fas fa-robot"></i></div>
-                    <div style="text-align:left">
-                        <div style="font-weight:bold; color:#333">Auto Session</div>
-                        <div style="font-size:12px; color:gray">Start Auto Ads</div>
+                    <div>
+                        <div style="font-weight:bold">Auto Task</div>
+                        <div style="font-size:12px; color:gray">Target: <span id="tgt-2">10</span> | ₹<span id="rwd-2">0.02</span></div>
                     </div>
                 </div>
-                <i class="fas fa-chevron-right" style="color:#ccc"></i>
-            </button>
+                <button class="task-btn" id="btn-2" onclick="runTask(2)">Start (<span id="prog-2">0</span>)</button>
+                <div class="cooldown-mask" id="cd-2">Wait <span id="tmr-2" style="margin-left:5px">00:00</span></div>
+            </div>
 
-            <button class="task-btn" onclick="watchAd3()">
-                <div style="display:flex; align-items:center">
+            <!-- TASK 3 -->
+            <div class="task-card">
+                <div class="task-left">
                     <div class="task-icon" style="background:#fdcb6e"><i class="fas fa-gift"></i></div>
-                    <div style="text-align:left">
-                        <div style="font-weight:bold; color:#333">Bonus Task</div>
-                        <div style="font-size:12px; color:gray">View Popup</div>
+                    <div>
+                        <div style="font-weight:bold">Bonus Task</div>
+                        <div style="font-size:12px; color:gray">Target: <span id="tgt-3">10</span> | ₹<span id="rwd-3">0.02</span></div>
                     </div>
                 </div>
-                <i class="fas fa-chevron-right" style="color:#ccc"></i>
-            </button>
+                <button class="task-btn" id="btn-3" onclick="runTask(3)">Open (<span id="prog-3">0</span>)</button>
+                <div class="cooldown-mask" id="cd-3">Wait <span id="tmr-3" style="margin-left:5px">00:00</span></div>
+            </div>
+
         </div>
         
-        <p id="short-timer" style="text-align:center; margin-top:15px; color:gray; display:none; font-size:13px">Wait <b id="time-left">0</b>s for next ad</p>
+        <p id="short-timer" style="text-align:center; margin-top:20px; color:gray; display:none; font-size:13px">Please wait <b id="time-left">0</b>s</p>
     </div>
 
     <!-- WALLET -->
     <div id="wallet" class="content-area">
         <div class="card">
             <h3>Withdraw</h3><br>
-            <label class="form-label">Method</label>
-            <select id="withdraw-method" class="form-select" onchange="updatePlaceholder()"><option value="">Select</option></select>
-            <label class="form-label" id="account-label">Details</label>
+            <select id="withdraw-method" class="form-select" onchange="updatePlaceholder()"><option value="">Select Method</option></select>
             <input type="text" id="withdraw-details" class="form-input" placeholder="Enter Details">
-            <label class="form-label">Amount</label>
-            <input type="number" id="withdraw-amount" class="form-input" placeholder="Min Amount">
+            <input type="number" id="withdraw-amount" class="form-input" placeholder="Amount">
             <button class="withdraw-btn" onclick="requestWithdraw()">Request Withdraw</button>
         </div>
-        <div style="padding:0 20px"><h4>History</h4><div id="history-list" style="margin-top:10px"></div></div>
+        <div style="padding:0 10px"><h4>History</h4><div id="history-list" style="margin-top:10px"></div></div>
     </div>
 
-    <!-- INVITE (RESTORED PROFESSIONAL DESIGN) -->
+    <!-- INVITE (PROFESSIONAL DESIGN) -->
     <div id="invite" class="content-area">
-        <div style="padding: 0 10px;">
-            <!-- Banner -->
+        <div class="card">
             <div class="refer-banner">
-                <i class="fas fa-gift" style="font-size:40px"></i>
+                <i class="fas fa-gift" style="font-size:35px"></i>
                 <div>
                     <div style="font-weight:bold; font-size:18px">Refer & Earn</div>
                     <div style="font-size:13px; opacity:0.9">Get ₹0.002 per friend</div>
                 </div>
             </div>
 
-            <!-- Stats Row -->
             <div class="refer-stats">
-                <div class="stat-box">
-                    <span class="stat-val" id="total-ref">0</span>
-                    <span class="stat-lbl">Total Invites</span>
-                </div>
-                <div class="stat-box">
-                    <span class="stat-val">₹<span id="ref-earn">0.00</span></span>
-                    <span class="stat-lbl">Earnings</span>
-                </div>
+                <div class="stat-box"><span class="stat-val" id="total-ref">0</span><span style="font-size:12px; color:gray">Invites</span></div>
+                <div class="stat-box"><span class="stat-val">₹<span id="ref-earn">0.00</span></span><span style="font-size:12px; color:gray">Earned</span></div>
             </div>
 
-            <div class="card">
-                <p style="font-weight:bold; color:#333; margin-bottom:10px">Your Unique Link</p>
-                <div class="invite-link-box">
-                    <div class="link-text" id="ref-link">Loading...</div>
-                    <i class="far fa-copy" style="color:var(--accent); font-size:20px; cursor:pointer" onclick="copyLink()"></i>
-                </div>
-                
-                <button class="share-full-btn" onclick="shareLink()">
-                    <i class="fab fa-telegram-plane"></i> Share on Telegram
-                </button>
+            <p style="font-weight:bold; color:#333; margin-bottom:10px">Your Unique Link</p>
+            <div class="invite-box">
+                <div class="invite-link" id="ref-link">Loading...</div>
+                <i class="far fa-copy" style="color:var(--accent); font-size:20px; cursor:pointer" onclick="copyLink()"></i>
             </div>
+            
+            <button class="share-btn" onclick="shareLink()">
+                <i class="fab fa-telegram-plane"></i> Share on Telegram
+            </button>
         </div>
     </div>
 
@@ -231,31 +214,34 @@
         const db = firebase.firestore();
 
         let user = null, isLogin = true;
-        let config = { rewardPerAd: 1, minWithdraw: 100, adsTarget: 10, cooldownTime: 10, longCooldownHours: 14, paymentMethods: [] };
-        let lastAd = 0, adProgress = 0, lastTaskTime = 0, updateInterval;
+        // Default Config (Admin controlled)
+        let config = { 
+            t1_tgt: 10, t1_rwd: 0.02, 
+            t2_tgt: 10, t2_rwd: 0.02, 
+            t3_tgt: 10, t3_rwd: 0.02,
+            minWithdraw: 100, cooldownTime: 10, longCooldownHours: 14, paymentMethods: [] 
+        };
+        
+        let userData = { p1:0, p2:0, p3:0, time1:0, time2:0, time3:0, lastAd:0 };
+        let updateInterval;
 
-        function toggleAuth() {
-            isLogin = !isLogin;
-            document.getElementById('btn-auth').innerText = isLogin ? "Login" : "Register";
-            document.getElementById('inp-name').style.display = isLogin ? "none" : "block";
-            document.getElementById('inp-ref-code').style.display = isLogin ? "none" : "block";
-        }
+        // AUTH
+        function toggleAuth() { isLogin = !isLogin; document.getElementById('btn-auth').innerText = isLogin ? "Login" : "Register"; document.getElementById('inp-name').style.display = isLogin ? "none" : "block"; document.getElementById('inp-ref-code').style.display = isLogin ? "none" : "block"; }
         function handleAuth() {
-            const e = document.getElementById('inp-email').value, p = document.getElementById('inp-pass').value;
-            const n = document.getElementById('inp-name').value, refCode = document.getElementById('inp-ref-code').value.trim();
-            if(!e || !p) return alert("Fill all fields");
-            if(isLogin) {
-                auth.signInWithEmailAndPassword(e, p).catch(err => alert(err.message));
-            } else {
+            const e = document.getElementById('inp-email').value, p = document.getElementById('inp-pass').value, n = document.getElementById('inp-name').value, ref = document.getElementById('inp-ref-code').value.trim();
+            if(!e || !p) return alert("Fill fields");
+            if(isLogin) auth.signInWithEmailAndPassword(e, p).catch(err => alert(err.message));
+            else {
                 if(!n) return alert("Enter Name");
-                auth.createUserWithEmailAndPassword(e, p).then(async cred => {
-                    await cred.user.updateProfile({displayName: n});
-                    if(refCode) {
-                        const refSnap = await db.collection("users").doc(refCode).get();
-                        if(refSnap.exists) db.collection("users").doc(refCode).update({ balance: firebase.firestore.FieldValue.increment(0.002), referralsCount: firebase.firestore.FieldValue.increment(1), referralEarnings: firebase.firestore.FieldValue.increment(0.002) });
+                auth.createUserWithEmailAndPassword(e, p).then(async c => {
+                    await c.user.updateProfile({displayName: n});
+                    if(ref) {
+                        const rs = await db.collection("users").doc(ref).get();
+                        if(rs.exists) db.collection("users").doc(ref).update({ balance: firebase.firestore.FieldValue.increment(0.002), referralsCount: firebase.firestore.FieldValue.increment(1), referralEarnings: firebase.firestore.FieldValue.increment(0.002) });
                     }
-                    db.collection("users").doc(cred.user.uid).set({
-                        name: n, email: e, password: p, balance: 0, adsWatchedTotal: 0, dailyAds: 0, adProgress: 0, lastTaskTime: 0, referralsCount: 0, referralEarnings: 0, joined: new Date().toDateString()
+                    db.collection("users").doc(c.user.uid).set({
+                        name: n, email: e, password: p, balance: 0, dailyAds: 0, referralsCount: 0, referralEarnings: 0,
+                        p1:0, p2:0, p3:0, time1:0, time2:0, time3:0, lastAd:0, joined: new Date().toDateString()
                     });
                 }).catch(err => alert(err.message));
             }
@@ -280,116 +266,132 @@
         function logout() { auth.signOut().then(() => location.reload()); }
 
         function loadConfig() {
-            db.collection("settings").doc("config").onSnapshot(doc => {
-                if(doc.exists) { config = { ...config, ...doc.data() }; updateUI(); checkStatus(); }
+            db.collection("settings").doc("config").onSnapshot(d => {
+                if(d.exists) { config = { ...config, ...d.data() }; updateUI(); checkAllTimers(); }
             });
         }
+
         function syncUser() {
-            db.collection("users").doc(user.uid).onSnapshot(doc => {
-                if(!doc.exists) return;
-                const d = doc.data();
-                document.getElementById('bal-disp').innerText = d.balance.toFixed(3);
-                document.getElementById('daily-ads').innerText = d.dailyAds || 0;
-                document.getElementById('total-ref').innerText = d.referralsCount || 0;
-                document.getElementById('ref-earn').innerText = (d.referralEarnings || 0).toFixed(3);
-                adProgress = d.adProgress || 0; lastAd = d.lastAdTime || 0; lastTaskTime = d.lastTaskTime || 0;
-                checkStatus(); updateUI();
+            db.collection("users").doc(user.uid).onSnapshot(d => {
+                if(!d.exists) return;
+                const data = d.data();
+                userData = { ...userData, ...data };
+                document.getElementById('bal-disp').innerText = (data.balance || 0).toFixed(3);
+                document.getElementById('daily-ads').innerText = data.dailyAds || 0;
+                document.getElementById('total-ref').innerText = data.referralsCount || 0;
+                document.getElementById('ref-earn').innerText = (data.referralEarnings || 0).toFixed(3);
+                
+                updateUI();
+                checkAllTimers();
             });
+            // History
             db.collection("withdrawals").where("userId", "==", user.uid).orderBy("date", "desc").limit(5).onSnapshot(s => {
                 const h = document.getElementById('history-list'); h.innerHTML = '';
                 s.forEach(d => { const t = d.data(); h.innerHTML += `<div style="background:#eee; padding:10px; margin-bottom:5px; border-radius:5px; font-size:13px; display:flex; justify-content:space-between"><span>${t.method}</span><b>₹${t.amount}</b><span>${t.status}</span></div>`; });
             });
         }
+
         function updateUI() {
-            document.getElementById('target-ads').innerText = config.adsTarget;
-            document.getElementById('reward-val').innerText = config.rewardPerAd;
-            const pct = (adProgress / config.adsTarget) * 100;
-            document.getElementById('prog-fill').style.width = pct + "%";
-            document.getElementById('prog-text').innerText = `${adProgress}/${config.adsTarget}`;
+            // Update Targets & Rewards Text
+            document.getElementById('tgt-1').innerText = config.t1_tgt; document.getElementById('rwd-1').innerText = config.t1_rwd;
+            document.getElementById('tgt-2').innerText = config.t2_tgt; document.getElementById('rwd-2').innerText = config.t2_rwd;
+            document.getElementById('tgt-3').innerText = config.t3_tgt; document.getElementById('rwd-3').innerText = config.t3_rwd;
+            
+            // Update Progress Counts
+            document.getElementById('prog-1').innerText = userData.p1 || 0;
+            document.getElementById('prog-2').innerText = userData.p2 || 0;
+            document.getElementById('prog-3').innerText = userData.p3 || 0;
+
             const sel = document.getElementById('withdraw-method');
-            if(sel.options.length === 1 && config.paymentMethods) {
-                sel.innerHTML = '<option value="">Select</option>';
-                config.paymentMethods.forEach(m => sel.innerHTML += `<option value="${m}">${m}</option>`);
+            if(sel.options.length === 1 && config.paymentMethods) config.paymentMethods.forEach(m => sel.innerHTML += `<option value="${m}">${m}</option>`);
+        }
+
+        // --- TIMER LOGIC ---
+        function checkAllTimers() {
+            const now = Date.now();
+            checkSingleTimer(1, userData.time1, now);
+            checkSingleTimer(2, userData.time2, now);
+            checkSingleTimer(3, userData.time3, now);
+            checkShortCooldown(now);
+        }
+
+        function checkSingleTimer(id, endTime, now) {
+            const el = document.getElementById(`cd-${id}`);
+            const txt = document.getElementById(`tmr-${id}`);
+            const btn = document.getElementById(`btn-${id}`);
+            
+            const realEndTime = endTime + (config.longCooldownHours * 3600000);
+
+            if(endTime > 0 && now < realEndTime) {
+                el.style.display = "flex";
+                const rem = realEndTime - now;
+                const h = Math.floor(rem/3600000), m = Math.floor((rem%3600000)/60000);
+                txt.innerText = `${h}h ${m}m`;
+            } else {
+                if(endTime > 0) {
+                    let update = {}; update[`time${id}`] = 0;
+                    db.collection("users").doc(user.uid).update(update);
+                }
+                el.style.display = "none";
             }
         }
 
-        // --- REAL-TIME TIME CONTROL ---
-        function checkStatus() {
-            clearInterval(updateInterval);
-            const now = Date.now();
-            const taskList = document.getElementById('task-list-container');
-            const timerBox = document.getElementById('timer-box');
+        function checkShortCooldown(now) {
+            const diff = (now - (userData.lastAd || 0))/1000;
             const shortTimer = document.getElementById('short-timer');
-            const btns = document.querySelectorAll('.task-btn');
+            const btns = [1,2,3].map(i => document.getElementById(`btn-${i}`));
 
-            const dynamicEndTime = lastTaskTime + (config.longCooldownHours * 60 * 60 * 1000);
-
-            if(lastTaskTime > 0 && now < dynamicEndTime) {
-                taskList.style.display = "none";
-                timerBox.style.display = "block";
-                shortTimer.style.display = "none";
-                
-                updateInterval = setInterval(() => {
-                    const endTime = lastTaskTime + (config.longCooldownHours * 60 * 60 * 1000);
-                    const rem = endTime - Date.now();
-                    if(rem <= 0) { db.collection("users").doc(user.uid).update({ lastTaskTime: 0 }); }
-                    else {
-                        const h = Math.floor(rem / 3600000), m = Math.floor((rem % 3600000) / 60000), s = Math.floor((rem % 60000) / 1000);
-                        document.getElementById('countdown-text').innerText = `${h}h ${m}m ${s}s`;
-                    }
-                }, 1000);
-                return;
-            }
-
-            taskList.style.display = "flex";
-            timerBox.style.display = "none";
-
-            const diff = (now - lastAd)/1000;
             if(diff < config.cooldownTime) {
                 btns.forEach(b => b.disabled = true);
                 shortTimer.style.display = "block";
-                updateInterval = setInterval(() => {
-                    const rem = Math.ceil(config.cooldownTime - (Date.now() - lastAd)/1000);
-                    if(rem > 0) document.getElementById('time-left').innerText = rem;
-                    else { btns.forEach(b => b.disabled = false); shortTimer.style.display = "none"; clearInterval(updateInterval); }
-                }, 1000);
-            } else { btns.forEach(b => b.disabled = false); shortTimer.style.display = "none"; }
+                document.getElementById('time-left').innerText = Math.ceil(config.cooldownTime - diff);
+                setTimeout(() => checkAllTimers(), 1000);
+            } else {
+                shortTimer.style.display = "none";
+                btns.forEach(b => b.disabled = false);
+            }
         }
 
         // --- ADS LOGIC ---
-        function runMonetagAd(callback) {
-            const loader = document.getElementById('ad-loader');
-            if (typeof show_10364706 !== 'function') { alert("Ad script loading... Check internet"); return; }
-            loader.style.display = "flex";
-            show_10364706().then(() => { loader.style.display = "none"; callback(); }).catch(e => { loader.style.display = "none"; alert("Ad Failed/Closed"); });
+        function runTask(id) {
+            if (typeof show_10364706 !== 'function') { alert("Ad Loading..."); return; }
+            document.getElementById('ad-loader').style.display = "flex";
+            
+            // Ad Type Logic
+            let type = (id===2) ? { type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false } } : (id===3 ? 'pop' : undefined);
+            
+            show_10364706(type).then(() => {
+                document.getElementById('ad-loader').style.display = "none";
+                processReward(id);
+            }).catch(() => {
+                document.getElementById('ad-loader').style.display = "none";
+                // Even on error, we process for user experience (optional)
+                processReward(id);
+            });
         }
 
-        function watchAd1() { runMonetagAd(() => finishAd()); }
-        function watchAd2() { 
-            if (typeof show_10364706 === 'function') { show_10364706({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false } }); alert("Auto Ads Started."); finishAd(); } 
-            else alert("Ad script not ready"); 
-        }
-        function watchAd3() { 
-            if (typeof show_10364706 === 'function') { show_10364706('pop'); finishAd(); } 
-            else alert("Ad script not ready"); 
-        }
+        function processReward(id) {
+            const now = Date.now();
+            let update = { dailyAds: firebase.firestore.FieldValue.increment(1), lastAd: now };
+            let currentProg = (userData[`p${id}`] || 0) + 1;
+            update[`p${id}`] = currentProg;
 
-        function finishAd() {
-            const now = Date.now(), newProg = adProgress + 1;
-            let updateData = { adsWatchedTotal: firebase.firestore.FieldValue.increment(1), dailyAds: firebase.firestore.FieldValue.increment(1), lastAdTime: now, adProgress: newProg };
-            if(newProg >= config.adsTarget) {
-                updateData.balance = firebase.firestore.FieldValue.increment(config.rewardPerAd);
-                updateData.adProgress = 0;
-                updateData.lastTaskTime = now;
-                alert(`Target Completed! Reward ₹${config.rewardPerAd} Added.`);
+            // Admin Controlled Values
+            let target = config[`t${id}_tgt`];
+            let reward = config[`t${id}_rwd`];
+
+            if(currentProg >= target) {
+                update.balance = firebase.firestore.FieldValue.increment(reward);
+                update[`p${id}`] = 0; 
+                update[`time${id}`] = now; 
+                alert(`Task Completed! ₹${reward} Added.`);
             }
-            db.collection("users").doc(user.uid).update(updateData);
+            db.collection("users").doc(user.uid).update(update);
         }
 
         function updatePlaceholder() {
             const m = document.getElementById('withdraw-method').value, inp = document.getElementById('withdraw-details');
-            if(m.toLowerCase().includes('upi')) { document.getElementById('account-label').innerText = "UPI ID"; inp.placeholder = "example@upi"; }
-            else if(m) { document.getElementById('account-label').innerText = "Account Number"; inp.placeholder = "Enter Details"; }
+            if(m.toLowerCase().includes('upi')) inp.placeholder = "Your UPI ID"; else inp.placeholder = "Account Number";
         }
         function requestWithdraw() {
             const m = document.getElementById('withdraw-method').value, d = document.getElementById('withdraw-details').value, a = parseFloat(document.getElementById('withdraw-amount').value), cur = parseFloat(document.getElementById('bal-disp').innerText);
@@ -401,7 +403,7 @@
                 alert("Success!");
             });
         }
-        function copyLink() { navigator.clipboard.writeText(document.getElementById('ref-link').innerText); alert("Link Copied!"); }
+        function copyLink() { navigator.clipboard.writeText(document.getElementById('ref-link').innerText); alert("Copied!"); }
         function shareLink() { const t = document.getElementById('ref-link').innerText; if(navigator.share) navigator.share({title:'Earn', url:t}); else copyLink(); }
         function goTab(id, el) { document.querySelectorAll('.content-area').forEach(d=>d.classList.remove('active')); document.getElementById(id).classList.add('active'); document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active')); if(el) el.classList.add('active'); }
     </script>
