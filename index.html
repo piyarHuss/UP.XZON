@@ -1,10 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- ✅ ADSGRAM SCRIPT -->
+    <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+    
+    <!-- ⚠️ MONETAG SCRIPT -->
     <script src='//libtl.com/sdk.js' data-zone='10364706' data-sdk='show_10364706'></script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>EarnMoney Pro</title>
+    <title>EarnMoney Pro - Dark</title>
     
     <!-- FIREBASE -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -13,86 +18,115 @@
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-    <!-- ⚠️ MONETAG SCRIPT HERE -->
-    <!-- <script src="//kulroak.com/nt/xxxxxx/script.js"></script> -->
-
     <style>
-        :root { --primary: #2d3436; --accent: #0984e3; --bg: #dfe6e9; --white: #ffffff; --success: #00b894; }
+        /* ✨ NEW SOFT DARK THEME COLORS ✨ */
+        :root { 
+            --bg: #18191a;           /* Soft Black (Background) */
+            --card: #242526;         /* Dark Grey (Cards) */
+            --text-main: #e4e6eb;    /* White text */
+            --text-sec: #b0b3b8;     /* Grey text */
+            --primary: #6c5ce7;      /* Purple */
+            --accent: #48dbfb;       /* Light Blue */
+            --input-bg: #3a3b3c;     /* Input fields */
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--bg); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
-        /* AUTH SCREEN */
-        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 200; display: flex; flex-direction: column; justify-content: center; padding: 30px; }
-        .inp-field { width: 100%; padding: 15px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 12px; background: #f9f9f9; outline: none; }
+        body { background-color: var(--bg); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        
+        /* LOGIN SCREEN - DARK */
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 200; display: flex; flex-direction: column; justify-content: center; padding: 30px; }
+        #login-screen h2 { color: var(--text-main); }
+        
+        .inp-field { width: 100%; padding: 15px; margin-bottom: 15px; border: 1px solid #444; border-radius: 12px; background: var(--input-bg); color: white; outline: none; }
+        .inp-field::placeholder { color: #aaa; }
+        
         .main-btn { background: var(--primary); color: white; width: 100%; padding: 15px; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; margin-top: 10px; }
-        
+        .toggle-link { margin-top: 20px; text-align: center; color: var(--accent); font-weight: bold; cursor: pointer; }
+
         /* HEADER */
-        header { background: var(--white); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 10; }
-        
-        /* CONTENT */
+        header { background: var(--card); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.2); z-index: 10; border-bottom: 1px solid #333; }
+        header span { font-weight: bold; font-size: 18px; color: var(--text-main); }
+
         .content-area { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 90px; display: none; }
         .content-area.active { display: block; }
         
-        /* BALANCE CARD */
-        .balance-box { text-align: center; padding: 20px; background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: white; border-radius: 16px; margin-bottom: 20px; }
+        /* CARDS */
+        .card { background: var(--card); border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); margin-bottom: 20px; color: var(--text-main); }
+        h3, h4 { color: var(--text-main); }
+
+        /* BALANCE BOX */
+        .balance-box { text-align: center; padding: 20px; background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: white; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4); }
         .balance-num { font-size: 40px; font-weight: 800; }
         
-        /* 3 TASKS STYLE */
+        /* TASK LIST */
         .task-container { display: flex; flex-direction: column; gap: 12px; }
         .task-card {
-            background: white; padding: 15px; border-radius: 15px;
+            background: var(--card); padding: 15px; border-radius: 15px;
             display: flex; align-items: center; justify-content: space-between;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: relative; overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2); position: relative; overflow: hidden;
+            border: 1px solid #333;
         }
         .task-left { display: flex; align-items: center; gap: 15px; }
         .task-icon { width: 45px; height: 45px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; }
-        .task-btn { padding: 8px 15px; background: var(--primary); color: white; border: none; border-radius: 20px; font-size: 12px; font-weight: bold; cursor: pointer; }
-        .task-btn:disabled { background: #ccc; cursor: not-allowed; }
         
-        /* COOLDOWN OVERLAY */
-        .cooldown-mask {
-            position: absolute; top:0; left:0; width:100%; height:100%;
-            background: rgba(255,255,255,0.9); display: none;
-            align-items: center; justify-content: center;
-            color: #d63031; font-weight: bold; font-size: 14px;
-        }
+        .task-card .task-left div div:first-child { color: var(--text-main); } /* Task Title Color */
+        .task-card .task-left div div:last-child { color: var(--text-sec); }   /* Task Subtitle Color */
 
-        /* INVITE PAGE (Professional Style) */
-        .refer-banner { background: linear-gradient(45deg, #ff9f43, #ffca28); color: white; padding: 20px; border-radius: 15px; display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+        .task-btn { padding: 8px 15px; background: var(--primary); color: white; border: none; border-radius: 20px; font-size: 12px; font-weight: bold; cursor: pointer; }
+        .task-btn:disabled { background: #555; cursor: not-allowed; color: #aaa; }
+        
+        .cooldown-mask { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(24, 25, 26, 0.95); display: none; align-items: center; justify-content: center; color: #ff7675; font-weight: bold; font-size: 14px; z-index: 5; flex-direction: column; text-align: center;}
+
+        /* ADSGRAM SPECIAL STYLE - GLOW */
+        .adsgram-card { border: 1px solid #6c5ce7; background: rgba(108, 92, 231, 0.1); }
+        .adsgram-card .task-left div div:first-child { color: #a29bfe !important; }
+
+        /* INVITE */
+        .refer-banner { background: linear-gradient(45deg, #e17055, #fdcb6e); color: white; padding: 20px; border-radius: 15px; display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
         .refer-stats { display: flex; gap: 10px; margin-bottom: 20px; }
-        .stat-box { flex: 1; background: white; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid #ddd; }
-        .stat-val { font-size: 20px; font-weight: bold; color: var(--primary); display: block; }
-        .invite-box { background: #eef2ff; padding: 12px; border-radius: 10px; border: 1px dashed var(--accent); display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .invite-link { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--accent); font-weight: bold; font-size: 13px; flex: 1; margin-right: 10px; }
-        .share-btn { width: 100%; background: var(--accent); color: white; padding: 15px; border-radius: 12px; border: none; font-weight: bold; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .stat-box { flex: 1; background: var(--card); padding: 15px; border-radius: 12px; text-align: center; border: 1px solid #333; }
+        .stat-val { font-size: 20px; font-weight: bold; color: var(--text-main); display: block; }
+        
+        .code-box { 
+            background: var(--input-bg); border: 2px dashed #555; color: var(--text-main); padding: 15px; border-radius: 10px; 
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; 
+        }
+        .code-text { font-family: monospace; font-size: 24px; letter-spacing: 2px; font-weight: bold; color: var(--accent); }
+        .invite-link-box { background: var(--input-bg); padding: 12px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border: 1px solid #444; }
+        .link-text { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--text-sec); font-size: 12px; flex: 1; margin-right: 10px; }
+        .share-full-btn { width: 100%; background: #0088cc; color: white; padding: 15px; border-radius: 12px; border: none; font-weight: bold; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; }
 
-        /* WALLET */
-        .card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; }
-        .form-select, .form-input { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 10px; }
-        .withdraw-btn { width: 100%; padding: 15px; background: var(--primary); color: white; border-radius: 10px; font-weight: bold; border: none; }
+        /* FORMS */
+        .form-select, .form-input { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid #444; border-radius: 10px; background: var(--input-bg); color: white; outline: none; }
+        .withdraw-btn { width: 100%; padding: 15px; background: var(--success); color: white; border-radius: 10px; font-weight: bold; border: none; }
 
-        /* NAV & LOADER */
-        .bottom-nav { position: fixed; bottom: 20px; left: 20px; right: 20px; background: #2d3436; border-radius: 20px; display: flex; justify-content: space-around; padding: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); z-index: 50; }
-        .nav-item { color: #b2bec3; font-size: 20px; } .nav-item.active { color: var(--white); }
+        /* NAV */
+        .bottom-nav { position: fixed; bottom: 20px; left: 20px; right: 20px; background: var(--card); border: 1px solid #333; border-radius: 20px; display: flex; justify-content: space-around; padding: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.5); z-index: 50; }
+        .nav-item { color: #555; font-size: 20px; transition: 0.3s; } 
+        .nav-item.active { color: var(--text-main); transform: scale(1.1); text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+        
         #ad-loader { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:999; display:none; justify-content:center; align-items:center; color:white; flex-direction:column; }
     </style>
 </head>
 <body>
 
+    <!-- AUTH -->
     <div id="login-screen">
-        <h2 style="margin-bottom:20px">Welcome</h2>
+        <h2 style="margin-bottom:20px; text-align: center;">Welcome</h2>
         <input type="text" id="inp-name" class="inp-field" placeholder="Full Name" style="display:none">
         <input type="email" id="inp-email" class="inp-field" placeholder="Email">
         <input type="password" id="inp-pass" class="inp-field" placeholder="Password">
-        <input type="text" id="inp-ref-code" class="inp-field" placeholder="Referral Code" style="display:none">
+        <input type="text" id="inp-ref-code" class="inp-field" placeholder="Referral Code (Optional)" style="display:none">
         <button class="main-btn" onclick="handleAuth()" id="btn-auth">Login</button>
-        <p id="error-msg" style="color:red; margin-top:10px; font-size:12px; text-align:center"></p>
-        <p style="text-align:center; color:#0984e3; margin-top:20px" onclick="toggleAuth()">Create Account</p>
+        <p id="error-msg" style="color:#ff7675; margin-top:10px; font-size:12px; text-align:center"></p>
+        <p style="text-align:center; color:var(--accent); margin-top:20px" onclick="toggleAuth()" class="toggle-link">Create Account</p>
     </div>
 
+    <!-- MAIN -->
     <header id="app-header" style="display:none">
         <span style="font-weight:bold">Hi, <span id="user-display">User</span></span>
-        <i class="fas fa-power-off" style="color:red" onclick="logout()"></i>
+        <i class="fas fa-power-off" style="color:#ff7675; cursor: pointer;" onclick="logout()"></i>
     </header>
 
     <!-- HOME -->
@@ -100,49 +134,72 @@
         <div class="balance-box">
             <p style="opacity:0.8; margin:0">Total Balance</p>
             <div class="balance-num">₹<span id="bal-disp">0.00</span></div>
-            <div style="font-size:12px; margin-top:5px; background:rgba(255,255,255,0.2); display:inline-block; padding:3px 12px; border-radius:15px">Daily Ads: <span id="daily-ads">0</span></div>
+            <div style="font-size:12px; margin-top:5px; background:rgba(0,0,0,0.2); display:inline-block; padding:3px 12px; border-radius:15px">Daily Ads: <span id="daily-ads">0</span></div>
         </div>
 
-        <h3 style="margin:0 0 15px 0; color:#333">Daily Tasks</h3>
+        <!-- ✅ 1. ADSGRAM SECTION (TOP) -->
+        <h3 style="margin:0 0 10px 0; color:#a29bfe"><i class="fas fa-star"></i> Video Task</h3>
+        <div class="task-container" style="margin-bottom: 20px;">
+            <div class="task-card adsgram-card">
+                <div class="task-left">
+                    <div class="task-icon" style="background:#6c5ce7"><i class="fas fa-video"></i></div>
+                    <div>
+                        <div style="font-weight:bold">Watch Video</div>
+                        <div style="font-size:12px; color:var(--text-sec)">
+                            Get ₹<span id="ag-reward">0.01</span> | 
+                            <span id="ag-prog">0</span>/<span id="ag-limit">10</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="task-btn" id="btn-ag" onclick="runAdsgram()" style="background:#6c5ce7">Watch</button>
+                <div class="cooldown-mask" id="cd-ag">
+                    <span style="color:#ff7675">Limit Reached!</span>
+                    <span id="tmr-ag" style="font-size:12px; margin-top:5px; color:#aaa">00:00:00</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ⚠️ 2. MONETAG SECTION (BOTTOM) -->
+        <h3 style="margin:0 0 15px 0;">Other Tasks</h3>
 
         <div class="task-container" id="task-list">
             
-            <!-- TASK 1 -->
+            <!-- TASK 1 (Monetag) -->
             <div class="task-card">
                 <div class="task-left">
                     <div class="task-icon" style="background:#ff7675"><i class="fas fa-play"></i></div>
                     <div>
                         <div style="font-weight:bold">Premium Task</div>
-                        <div style="font-size:12px; color:gray">Target: <span id="tgt-1">10</span> | ₹<span id="rwd-1">0.02</span></div>
+                        <div style="font-size:12px;">Target: <span id="tgt-1">10</span> | ₹<span id="rwd-1">0.02</span></div>
                     </div>
                 </div>
-                <button class="task-btn" id="btn-1" onclick="runTask(1)">Watch (<span id="prog-1">0</span>)</button>
+                <button class="task-btn" id="btn-1" onclick="runMonetag(1)">Watch (<span id="prog-1">0</span>)</button>
                 <div class="cooldown-mask" id="cd-1">Wait <span id="tmr-1" style="margin-left:5px">00:00</span></div>
             </div>
 
-            <!-- TASK 2 -->
+            <!-- TASK 2 (Monetag) -->
             <div class="task-card">
                 <div class="task-left">
                     <div class="task-icon" style="background:#74b9ff"><i class="fas fa-robot"></i></div>
                     <div>
                         <div style="font-weight:bold">Auto Task</div>
-                        <div style="font-size:12px; color:gray">Target: <span id="tgt-2">10</span> | ₹<span id="rwd-2">0.02</span></div>
+                        <div style="font-size:12px;">Target: <span id="tgt-2">10</span> | ₹<span id="rwd-2">0.02</span></div>
                     </div>
                 </div>
-                <button class="task-btn" id="btn-2" onclick="runTask(2)">Start (<span id="prog-2">0</span>)</button>
+                <button class="task-btn" id="btn-2" onclick="runMonetag(2)">Start (<span id="prog-2">0</span>)</button>
                 <div class="cooldown-mask" id="cd-2">Wait <span id="tmr-2" style="margin-left:5px">00:00</span></div>
             </div>
 
-            <!-- TASK 3 -->
+            <!-- TASK 3 (Monetag) -->
             <div class="task-card">
                 <div class="task-left">
                     <div class="task-icon" style="background:#fdcb6e"><i class="fas fa-gift"></i></div>
                     <div>
                         <div style="font-weight:bold">Bonus Task</div>
-                        <div style="font-size:12px; color:gray">Target: <span id="tgt-3">10</span> | ₹<span id="rwd-3">0.02</span></div>
+                        <div style="font-size:12px;">Target: <span id="tgt-3">10</span> | ₹<span id="rwd-3">0.02</span></div>
                     </div>
                 </div>
-                <button class="task-btn" id="btn-3" onclick="runTask(3)">Open (<span id="prog-3">0</span>)</button>
+                <button class="task-btn" id="btn-3" onclick="runMonetag(3)">Open (<span id="prog-3">0</span>)</button>
                 <div class="cooldown-mask" id="cd-3">Wait <span id="tmr-3" style="margin-left:5px">00:00</span></div>
             </div>
 
@@ -163,11 +220,11 @@
         <div style="padding:0 10px"><h4>History</h4><div id="history-list" style="margin-top:10px"></div></div>
     </div>
 
-    <!-- INVITE (PROFESSIONAL DESIGN) -->
+    <!-- INVITE -->
     <div id="invite" class="content-area">
-        <div class="card">
+        <div style="padding: 0 10px;">
             <div class="refer-banner">
-                <i class="fas fa-gift" style="font-size:35px"></i>
+                <i class="fas fa-gift" style="font-size:40px"></i>
                 <div>
                     <div style="font-weight:bold; font-size:18px">Refer & Earn</div>
                     <div style="font-size:13px; opacity:0.9">Get ₹0.002 per friend</div>
@@ -175,19 +232,27 @@
             </div>
 
             <div class="refer-stats">
-                <div class="stat-box"><span class="stat-val" id="total-ref">0</span><span style="font-size:12px; color:gray">Invites</span></div>
-                <div class="stat-box"><span class="stat-val">₹<span id="ref-earn">0.00</span></span><span style="font-size:12px; color:gray">Earned</span></div>
+                <div class="stat-box"><span class="stat-val" id="total-ref">0</span><span style="font-size:12px; color:var(--text-sec)">Invites</span></div>
+                <div class="stat-box"><span class="stat-val">₹<span id="ref-earn">0.00</span></span><span style="font-size:12px; color:var(--text-sec)">Earned</span></div>
             </div>
 
-            <p style="font-weight:bold; color:#333; margin-bottom:10px">Your Unique Link</p>
-            <div class="invite-box">
-                <div class="invite-link" id="ref-link">Loading...</div>
-                <i class="far fa-copy" style="color:var(--accent); font-size:20px; cursor:pointer" onclick="copyLink()"></i>
+            <div class="card">
+                <p style="font-weight:bold; margin-bottom:5px">Your Referral Code</p>
+                <div class="code-box">
+                    <span class="code-text" id="user-code">LOADING</span>
+                    <i class="far fa-copy" style="cursor:pointer; color:#00b894; font-size:20px" onclick="copyCode()"></i>
+                </div>
+
+                <p style="font-weight:bold; margin-bottom:5px; margin-top:20px">Invite Link</p>
+                <div class="invite-link-box">
+                    <div class="link-text" id="ref-link">...</div>
+                    <i class="far fa-copy" style="color:var(--accent); font-size:18px; cursor:pointer" onclick="copyLinkURL()"></i>
+                </div>
+                
+                <button class="share-full-btn" onclick="shareLink()">
+                    <i class="fab fa-telegram-plane"></i> Share on Telegram
+                </button>
             </div>
-            
-            <button class="share-btn" onclick="shareLink()">
-                <i class="fab fa-telegram-plane"></i> Share on Telegram
-            </button>
         </div>
     </div>
 
@@ -213,38 +278,69 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
+        // ✅ ADSGRAM SETUP
+        let AdController;
+        document.addEventListener('DOMContentLoaded', () => {
+            if(window.Adsgram) {
+                AdController = window.Adsgram.init({ blockId: "19792" });
+            }
+        });
+
         let user = null, isLogin = true;
-        // Default Config (Admin controlled)
         let config = { 
             t1_tgt: 10, t1_rwd: 0.02, 
             t2_tgt: 10, t2_rwd: 0.02, 
-            t3_tgt: 10, t3_rwd: 0.02,
+            t3_tgt: 10, t3_rwd: 0.02, 
+            ag_reward: 0.01, ag_max: 10, ag_hours: 24, // AdsGram Config
             minWithdraw: 100, cooldownTime: 10, longCooldownHours: 14, paymentMethods: [] 
         };
+        let userData = { p1:0, p2:0, p3:0, ag_count: 0, ag_cooldown: 0, time1:0, time2:0, time3:0, lastAd:0 };
         
-        let userData = { p1:0, p2:0, p3:0, time1:0, time2:0, time3:0, lastAd:0 };
-        let updateInterval;
+        function toggleAuth() {
+            isLogin = !isLogin;
+            document.getElementById('btn-auth').innerText = isLogin ? "Login" : "Register";
+            document.getElementById('inp-name').style.display = isLogin ? "none" : "block";
+            document.getElementById('inp-ref-code').style.display = isLogin ? "none" : "block";
+            document.querySelector('.toggle-link').innerText = isLogin ? "Create new account" : "Back to Login";
+        }
 
-        // AUTH
-        function toggleAuth() { isLogin = !isLogin; document.getElementById('btn-auth').innerText = isLogin ? "Login" : "Register"; document.getElementById('inp-name').style.display = isLogin ? "none" : "block"; document.getElementById('inp-ref-code').style.display = isLogin ? "none" : "block"; }
-        function handleAuth() {
-            const e = document.getElementById('inp-email').value, p = document.getElementById('inp-pass').value, n = document.getElementById('inp-name').value, ref = document.getElementById('inp-ref-code').value.trim();
+        async function handleAuth() {
+            const e = document.getElementById('inp-email').value, p = document.getElementById('inp-pass').value;
+            const n = document.getElementById('inp-name').value, refCode = document.getElementById('inp-ref-code').value.trim().toUpperCase();
             if(!e || !p) return alert("Fill fields");
-            if(isLogin) auth.signInWithEmailAndPassword(e, p).catch(err => alert(err.message));
-            else {
+
+            if(isLogin) {
+                auth.signInWithEmailAndPassword(e, p).catch(err => alert(err.message));
+            } else {
                 if(!n) return alert("Enter Name");
                 auth.createUserWithEmailAndPassword(e, p).then(async c => {
                     await c.user.updateProfile({displayName: n});
-                    if(ref) {
-                        const rs = await db.collection("users").doc(ref).get();
-                        if(rs.exists) db.collection("users").doc(ref).update({ balance: firebase.firestore.FieldValue.increment(0.002), referralsCount: firebase.firestore.FieldValue.increment(1), referralEarnings: firebase.firestore.FieldValue.increment(0.002) });
+                    
+                    if(refCode) {
+                        const snap = await db.collection("users").where("shortId", "==", refCode).limit(1).get();
+                        if(!snap.empty) {
+                            snap.docs[0].ref.update({
+                                balance: firebase.firestore.FieldValue.increment(0.002),
+                                referralsCount: firebase.firestore.FieldValue.increment(1),
+                                referralEarnings: firebase.firestore.FieldValue.increment(0.002)
+                            });
+                        }
                     }
-                    db.collection("users").doc(c.user.uid).set({
-                        name: n, email: e, password: p, balance: 0, dailyAds: 0, referralsCount: 0, referralEarnings: 0,
-                        p1:0, p2:0, p3:0, time1:0, time2:0, time3:0, lastAd:0, joined: new Date().toDateString()
-                    });
+                    createUserData(c.user.uid, n, e, p, refCode);
                 }).catch(err => alert(err.message));
             }
+        }
+
+        function createUserData(uid, name, email, pass, referredBy) {
+            const shortId = uid.substring(0, 6).toUpperCase();
+            db.collection("users").doc(uid).set({
+                name: name, email: email, shortId: shortId,
+                balance: 0, adsWatchedTotal: 0, dailyAds: 0,
+                p1:0, p2:0, p3:0, ag_count:0, ag_cooldown:0,
+                time1:0, time2:0, time3:0, lastAd:0,
+                referralsCount: 0, referralEarnings: 0, referredBy: referredBy || null,
+                joined: new Date().toDateString()
+            }, { merge: true });
         }
 
         auth.onAuthStateChanged(u => {
@@ -255,7 +351,6 @@
                 document.getElementById('nav-bar').style.display = 'flex';
                 document.getElementById('home').classList.add('active');
                 document.getElementById('user-display').innerText = u.displayName;
-                document.getElementById('ref-link').innerText = "https://t.me/RUPEESX_bot?start=" + u.uid;
                 loadConfig(); syncUser();
             } else {
                 document.getElementById('login-screen').style.display = 'flex';
@@ -273,7 +368,7 @@
 
         function syncUser() {
             db.collection("users").doc(user.uid).onSnapshot(d => {
-                if(!d.exists) return;
+                if(!d.exists) { createUserData(user.uid, user.displayName, user.email, "", null); return; }
                 const data = d.data();
                 userData = { ...userData, ...data };
                 document.getElementById('bal-disp').innerText = (data.balance || 0).toFixed(3);
@@ -281,66 +376,80 @@
                 document.getElementById('total-ref').innerText = data.referralsCount || 0;
                 document.getElementById('ref-earn').innerText = (data.referralEarnings || 0).toFixed(3);
                 
-                updateUI();
-                checkAllTimers();
+                const sId = data.shortId || user.uid.substring(0,6).toUpperCase();
+                document.getElementById('user-code').innerText = sId;
+                document.getElementById('ref-link').innerText = "https://t.me/RUPEESX_bot?start=" + sId;
+
+                updateUI(); checkAllTimers();
             });
-            // History
             db.collection("withdrawals").where("userId", "==", user.uid).orderBy("date", "desc").limit(5).onSnapshot(s => {
                 const h = document.getElementById('history-list'); h.innerHTML = '';
-                s.forEach(d => { const t = d.data(); h.innerHTML += `<div style="background:#eee; padding:10px; margin-bottom:5px; border-radius:5px; font-size:13px; display:flex; justify-content:space-between"><span>${t.method}</span><b>₹${t.amount}</b><span>${t.status}</span></div>`; });
+                s.forEach(d => { const t = d.data(); h.innerHTML += `<div style="background:#2d2d2d; padding:10px; margin-bottom:5px; border-radius:5px; font-size:13px; display:flex; justify-content:space-between; color:white;"><span>${t.method}</span><b>₹${t.amount}</b><span>${t.status}</span></div>`; });
             });
         }
 
         function updateUI() {
-            // Update Targets & Rewards Text
+            document.getElementById('ag-reward').innerText = config.ag_reward || 0.01;
+            document.getElementById('ag-limit').innerText = config.ag_max || 10;
+            document.getElementById('ag-prog').innerText = userData.ag_count || 0;
+
             document.getElementById('tgt-1').innerText = config.t1_tgt; document.getElementById('rwd-1').innerText = config.t1_rwd;
             document.getElementById('tgt-2').innerText = config.t2_tgt; document.getElementById('rwd-2').innerText = config.t2_rwd;
             document.getElementById('tgt-3').innerText = config.t3_tgt; document.getElementById('rwd-3').innerText = config.t3_rwd;
-            
-            // Update Progress Counts
             document.getElementById('prog-1').innerText = userData.p1 || 0;
             document.getElementById('prog-2').innerText = userData.p2 || 0;
             document.getElementById('prog-3').innerText = userData.p3 || 0;
-
+            
             const sel = document.getElementById('withdraw-method');
             if(sel.options.length === 1 && config.paymentMethods) config.paymentMethods.forEach(m => sel.innerHTML += `<option value="${m}">${m}</option>`);
         }
 
-        // --- TIMER LOGIC ---
         function checkAllTimers() {
             const now = Date.now();
             checkSingleTimer(1, userData.time1, now);
             checkSingleTimer(2, userData.time2, now);
             checkSingleTimer(3, userData.time3, now);
+            checkAdsgramTimer(now);
             checkShortCooldown(now);
+        }
+
+        function checkAdsgramTimer(now) {
+            const el = document.getElementById('cd-ag');
+            const btn = document.getElementById('btn-ag');
+            
+            if(userData.ag_cooldown && now < userData.ag_cooldown) {
+                el.style.display = "flex"; btn.disabled = true;
+                const rem = userData.ag_cooldown - now;
+                const h = Math.floor(rem/3600000), m = Math.floor((rem%3600000)/60000), s = Math.floor((rem%60000)/1000);
+                document.getElementById('tmr-ag').innerText = `${h}h ${m}m ${s}s`;
+            } else {
+                if(userData.ag_cooldown && now > userData.ag_cooldown) {
+                    db.collection("users").doc(user.uid).update({ ag_count: 0, ag_cooldown: 0 });
+                }
+                el.style.display = "none"; btn.disabled = false;
+            }
         }
 
         function checkSingleTimer(id, endTime, now) {
             const el = document.getElementById(`cd-${id}`);
-            const txt = document.getElementById(`tmr-${id}`);
             const btn = document.getElementById(`btn-${id}`);
-            
             const realEndTime = endTime + (config.longCooldownHours * 3600000);
-
             if(endTime > 0 && now < realEndTime) {
-                el.style.display = "flex";
+                el.style.display = "flex"; btn.disabled = true;
                 const rem = realEndTime - now;
                 const h = Math.floor(rem/3600000), m = Math.floor((rem%3600000)/60000);
-                txt.innerText = `${h}h ${m}m`;
+                el.innerHTML = `Wait ${h}h ${m}m`;
             } else {
-                if(endTime > 0) {
-                    let update = {}; update[`time${id}`] = 0;
-                    db.collection("users").doc(user.uid).update(update);
-                }
-                el.style.display = "none";
+                if(endTime > 0) { let u={}; u[`time${id}`]=0; db.collection("users").doc(user.uid).update(u); }
+                el.style.display = "none"; btn.disabled = false;
             }
         }
 
         function checkShortCooldown(now) {
             const diff = (now - (userData.lastAd || 0))/1000;
             const shortTimer = document.getElementById('short-timer');
-            const btns = [1,2,3].map(i => document.getElementById(`btn-${i}`));
-
+            const btns = ['ag',1,2,3].map(i => document.getElementById(`btn-${i}`));
+            
             if(diff < config.cooldownTime) {
                 btns.forEach(b => b.disabled = true);
                 shortTimer.style.display = "block";
@@ -348,42 +457,61 @@
                 setTimeout(() => checkAllTimers(), 1000);
             } else {
                 shortTimer.style.display = "none";
-                btns.forEach(b => b.disabled = false);
+                if(!document.getElementById('cd-ag').style.display.includes('flex')) document.getElementById('btn-ag').disabled = false;
+                [1,2,3].forEach(i => {
+                    const realEnd = (userData[`time${i}`] || 0) + (config.longCooldownHours * 3600000);
+                    if(!userData[`time${i}`] || now > realEnd) document.getElementById(`btn-${i}`).disabled = false;
+                });
             }
         }
 
-        // --- ADS LOGIC ---
-        function runTask(id) {
-            if (typeof show_10364706 !== 'function') { alert("Ad Loading..."); return; }
+        function runAdsgram() {
+            if (!AdController) { alert("Loading Ads..."); return; }
             document.getElementById('ad-loader').style.display = "flex";
-            
-            // Ad Type Logic
-            let type = (id===2) ? { type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false } } : (id===3 ? 'pop' : undefined);
-            
-            show_10364706(type).then(() => {
+
+            AdController.show().then((result) => {
                 document.getElementById('ad-loader').style.display = "none";
-                processReward(id);
-            }).catch(() => {
+                const reward = config.ag_reward || 0.01;
+                const limit = config.ag_max || 10;
+                let update = { 
+                    balance: firebase.firestore.FieldValue.increment(reward),
+                    ag_count: firebase.firestore.FieldValue.increment(1),
+                    dailyAds: firebase.firestore.FieldValue.increment(1),
+                    lastAd: Date.now()
+                };
+                if ((userData.ag_count || 0) + 1 >= limit) {
+                    const cooldownHours = config.ag_hours || 24;
+                    update.ag_cooldown = Date.now() + (cooldownHours * 3600000);
+                }
+                db.collection("users").doc(user.uid).update(update);
+                alert(`Ad Watched! ₹${reward} Added.`);
+            }).catch((result) => {
                 document.getElementById('ad-loader').style.display = "none";
-                // Even on error, we process for user experience (optional)
-                processReward(id);
+                alert("Ad skipped or failed.");
             });
         }
 
-        function processReward(id) {
+        function runMonetag(id) {
+            if (typeof show_10364706 !== 'function') { alert("Ad Loading..."); return; }
+            document.getElementById('ad-loader').style.display = "flex";
+            let type = (id===2) ? { type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false } } : (id===3 ? 'pop' : undefined);
+            
+            show_10364706(type).then(() => {
+                document.getElementById('ad-loader').style.display = "none"; processMonetagReward(id);
+            }).catch(() => {
+                document.getElementById('ad-loader').style.display = "none"; processMonetagReward(id);
+            });
+        }
+
+        function processMonetagReward(id) {
             const now = Date.now();
             let update = { dailyAds: firebase.firestore.FieldValue.increment(1), lastAd: now };
             let currentProg = (userData[`p${id}`] || 0) + 1;
             update[`p${id}`] = currentProg;
-
-            // Admin Controlled Values
-            let target = config[`t${id}_tgt`];
-            let reward = config[`t${id}_rwd`];
-
+            let target = config[`t${id}_tgt`], reward = config[`t${id}_rwd`];
             if(currentProg >= target) {
                 update.balance = firebase.firestore.FieldValue.increment(reward);
-                update[`p${id}`] = 0; 
-                update[`time${id}`] = now; 
+                update[`p${id}`] = 0; update[`time${id}`] = now;
                 alert(`Task Completed! ₹${reward} Added.`);
             }
             db.collection("users").doc(user.uid).update(update);
@@ -403,8 +531,9 @@
                 alert("Success!");
             });
         }
-        function copyLink() { navigator.clipboard.writeText(document.getElementById('ref-link').innerText); alert("Copied!"); }
-        function shareLink() { const t = document.getElementById('ref-link').innerText; if(navigator.share) navigator.share({title:'Earn', url:t}); else copyLink(); }
+        function copyCode() { navigator.clipboard.writeText(document.getElementById('user-code').innerText); alert("Code Copied!"); }
+        function copyLinkURL() { navigator.clipboard.writeText(document.getElementById('ref-link').innerText); alert("Link Copied!"); }
+        function shareLink() { const t = document.getElementById('ref-link').innerText; if(navigator.share) navigator.share({title:'Earn', url:t}); else copyLinkURL(); }
         function goTab(id, el) { document.querySelectorAll('.content-area').forEach(d=>d.classList.remove('active')); document.getElementById(id).classList.add('active'); document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active')); if(el) el.classList.add('active'); }
     </script>
 </body>
