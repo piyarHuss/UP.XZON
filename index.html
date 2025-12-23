@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>EarnMoney Pro</title>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --primary: #2d3436; --accent: #0984e3; --bg: #dfe6e9; --white: #ffffff; --success: #00b894; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 200; display: flex; flex-direction: column; justify-content: center; padding: 30px; }
+        .auth-title { font-size: 28px; font-weight: bold; margin-bottom: 5px; }
+        .inp-field { width: 100%; padding: 15px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 12px; background: #f9f9f9; outline: none; }
+        .main-btn { background: var(--primary); color: white; width: 100%; padding: 15px; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; margin-top: 10px; }
+        .toggle-link { margin-top: 20px; text-align: center; color: var(--accent); font-weight: bold; cursor: pointer; }
+
+        header { background: var(--white); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 10; }
+        header span { font-weight: bold; font-size: 18px; color: var(--primary); }
+
+        .content-area { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 90px; display: none; }
+        .content-area.active { display: block; }
+        .card { background: var(--white); border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .balance-box { text-align: center; padding: 20px; background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: white; border-radius: 16px; margin-bottom: 20px; }
+        .balance-num { font-size: 40px; font-weight: 800; }
+        
+        .ad-btn { background: var(--primary); color: white; width: 100%; padding: 18px; border-radius: 12px; font-size: 18px; font-weight: bold; border: none; display: flex; justify-content: center; align-items: center; gap: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .ad-btn:disabled { background: #b2bec3; box-shadow: none; cursor: not-allowed; }
+        .progress-bar { height: 6px; background: #eee; border-radius: 3px; margin-top: 15px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--success); width: 0%; transition: 0.3s; }
+        
+        .form-label { font-size: 14px; font-weight: bold; color: #636e72; margin-bottom: 8px; display: block; }
+        .form-select, .form-input { width: 100%; padding: 14px; border: 1px solid #dfe6e9; border-radius: 10px; background: #f4f6f7; font-size: 16px; outline: none; margin-bottom: 20px; }
+        .withdraw-btn { background: var(--primary); color: white; width: 100%; padding: 16px; border-radius: 10px; font-weight: bold; border: none; font-size: 16px; }
+        .invite-box { background: #f1f2f6; border-radius: 12px; padding: 15px; display: flex; align-items: center; margin-bottom: 15px; border: 1px solid #e1e1e1; }
+        .invite-link { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: #555; font-size: 14px; }
+        .action-row { display: flex; gap: 10px; }
+        .share-btn { flex: 1; background: var(--accent); color: white; padding: 12px; border-radius: 10px; border: none; font-weight: bold; }
+        .copy-btn { width: 50px; background: var(--primary); color: white; border-radius: 10px; border: none; font-size: 18px; }
+
+        .bottom-nav { position: fixed; bottom: 20px; left: 20px; right: 20px; background: #2d3436; border-radius: 20px; display: flex; justify-content: space-around; padding: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); z-index: 50; }
+        .nav-item { color: #b2bec3; font-size: 20px; } .nav-item.active { color: var(--white); }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; display: none; justify-content: center; align-items: center; color: white; flex-direction: column; }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen">
+        <h1 class="auth-title">Welcome</h1>
+        <p style="color:#888; margin-bottom:30px">Enter details to continue</p>
+        <input type="text" id="inp-name" class="inp-field" placeholder="Full Name (For Register)" style="display:none">
+        <input type="email" id="inp-email" class="inp-field" placeholder="Email Address">
+        <input type="password" id="inp-pass" class="inp-field" placeholder="Password">
+        <button class="main-btn" onclick="handleAuth()" id="btn-auth">Login</button>
+        <p id="error-msg" style="color:red; margin-top:10px; font-size:13px; text-align:center"></p>
+        <div class="toggle-link" onclick="toggleAuth()">Create new account</div>
+    </div>
+
+    <header id="app-header" style="display:none">
+        <span id="user-display">User</span>
+        <i class="fas fa-power-off" style="color:red" onclick="logout()"></i>
+    </header>
+
+    <div id="home" class="content-area">
+        <div class="balance-box">
+            <p style="opacity:0.8">Total Balance</p>
+            <div class="balance-num">₹<span id="bal-disp">0.00</span></div>
+            <div style="font-size:12px; margin-top:5px; background:rgba(0,0,0,0.2); display:inline-block; padding:3px 10px; border-radius:10px">
+                Daily Ads: <span id="daily-ads">0</span>
+            </div>
+        </div>
+        <div class="card">
+            <h3>Task Status</h3>
+            <p style="color:gray; font-size:13px; margin:5px 0">Target: Watch <b id="target-ads">...</b> ads to get <b style="color:green">₹<span id="reward-val">...</span></b></p>
+            <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
+            <p style="text-align:right; font-size:12px; margin-top:5px"><span id="prog-text">0/0</span> Completed</p>
+        </div>
+        <button class="ad-btn" id="watch-btn"><i class="fas fa-play"></i> Watch Ad</button>
+        <div id="timer-box" style="text-align:center; margin-top:15px; display:none;">
+            <p style="color:red; font-weight:bold;">Task Completed!</p>
+            <p style="color:gray; font-size:14px;">Next ads available in:</p>
+            <h2 id="countdown-text" style="color:#2d3436; margin:5px 0;">00:00:00</h2>
+        </div>
+        <p id="short-timer" style="text-align:center; margin-top:10px; color:gray; display:none">Wait <span id="time-left">0</span>s</p>
+    </div>
+
+    <div id="wallet" class="content-area">
+        <div class="card">
+            <h2 style="margin-bottom:20px">Withdraw</h2>
+            <label class="form-label">Payment Method</label>
+            <select id="withdraw-method" class="form-select" onchange="updatePlaceholder()"><option value="">Select Method</option></select>
+            <label class="form-label" id="account-label">Account Number / ID</label>
+            <input type="text" id="withdraw-details" class="form-input" placeholder="Enter details">
+            <label class="form-label">Amount</label>
+            <input type="number" id="withdraw-amount" class="form-input" placeholder="Min: 100">
+            <button class="withdraw-btn" onclick="requestWithdraw()">Request Withdraw</button>
+        </div>
+        <div style="padding:0 20px">
+            <h4>History</h4>
+            <div id="history-list" style="margin-top:10px"></div>
+        </div>
+    </div>
+
+    <div id="invite" class="content-area">
+        <div class="card">
+            <h2 style="margin-bottom:10px">Invite Friends</h2>
+            <p style="color:gray; font-size:14px; margin-bottom:20px">Share your link and earn extra rewards.</p>
+            <div class="invite-box"><div class="invite-link" id="ref-link">...</div></div>
+            <div class="action-row">
+                <button class="share-btn" onclick="shareLink()"><i class="fab fa-telegram-plane"></i> Share</button>
+                <button class="copy-btn" onclick="copyLink()"><i class="far fa-copy"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-nav" id="nav-bar" style="display:none">
+        <i class="fas fa-home nav-item active" onclick="goTab('home', this)"></i>
+        <i class="fas fa-wallet nav-item" onclick="goTab('wallet', this)"></i>
+        <i class="fas fa-user-plus nav-item" onclick="goTab('invite', this)"></i>
+    </div>
+
+    <div id="ad-modal" class="modal">
+        <div style="border:4px solid #fff; border-top:4px solid var(--accent); border-radius:50%; width:40px; height:40px; animation:spin 1s linear infinite"></div>
+        <h3 style="margin-top:20px">Ad Playing...</h3>
+        <p>Wait <span id="ad-dur">5</span>s</p>
+    </div>
+    <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBsQkRlJZ52Ukw9AO3M2aO8U_VlGBWgbow",
+            authDomain: "new-mini-app.firebaseapp.com",
+            projectId: "new-mini-app",
+            storageBucket: "new-mini-app.firebasestorage.app",
+            messagingSenderId: "802261400662",
+            appId: "1:802261400662:web:5650d713cc4a5ec6cf8ff7",
+            measurementId: "G-DDQYD6QFS9"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        let user = null;
+        let isLogin = true;
+        let config = { rewardPerAd: 1, minWithdraw: 100, adsTarget: 10, cooldownTime: 10, adDuration: 5, paymentMethods: [] };
+        let lastAd = 0;
+        let adProgress = 0;
+        let longCooldownEnd = 0;
+        let updateInterval;
+
+        function toggleAuth() {
+            isLogin = !isLogin;
+            document.getElementById('btn-auth').innerText = isLogin ? "Login" : "Register";
+            document.getElementById('inp-name').style.display = isLogin ? "none" : "block";
+            document.querySelector('.toggle-link').innerText = isLogin ? "Create new account" : "Back to Login";
+        }
+
+        function handleAuth() {
+            const e = document.getElementById('inp-email').value;
+            const p = document.getElementById('inp-pass').value;
+            const n = document.getElementById('inp-name').value;
+            const err = document.getElementById('error-msg');
+            if(!e || !p) { err.innerText = "Fill all fields"; return; }
+
+            if(isLogin) {
+                auth.signInWithEmailAndPassword(e, p).catch(er => err.innerText = er.message);
+            } else {
+                if(!n) { err.innerText = "Enter Name"; return; }
+                auth.createUserWithEmailAndPassword(e, p).then(cred => {
+                    cred.user.updateProfile({displayName: n}).then(() => {
+                        // Create User Data (AUTO-FIX for Error 2)
+                        createUserData(cred.user.uid, n, e, p);
+                    });
+                }).catch(er => err.innerText = er.message);
+            }
+        }
+
+        function createUserData(uid, name, email, pass) {
+            db.collection("users").doc(uid).set({
+                name: name, email: email, password: pass || "Login via Gmail",
+                balance: 0, adsWatchedTotal: 0, dailyAds: 0,
+                adProgress: 0, longCooldownEnd: 0, lastAdTime: 0,
+                joined: new Date().toDateString()
+            }, { merge: true }); // Merge prevents overwriting existing data if present
+        }
+
+        auth.onAuthStateChanged(u => {
+            if(u) {
+                user = u;
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('app-header').style.display = 'flex';
+                document.getElementById('nav-bar').style.display = 'flex';
+                document.getElementById('home').classList.add('active');
+                document.getElementById('user-display').innerText = u.displayName || "User";
+                document.getElementById('ref-link').innerText = "https://t.me/myapp?start=" + u.uid.substr(0,5).toUpperCase();
+                
+                loadConfig();
+                syncUser();
+            } else {
+                document.getElementById('login-screen').style.display = 'flex';
+                document.getElementById('app-header').style.display = 'none';
+                document.getElementById('nav-bar').style.display = 'none';
+            }
+        });
+
+        function logout() { auth.signOut().then(() => location.reload()); }
+
+        function loadConfig() {
+            db.collection("settings").doc("config").onSnapshot(doc => {
+                if(doc.exists) { config = { ...config, ...doc.data() }; updateUI(); }
+            });
+        }
+
+        function syncUser() {
+            // FIX: If document doesn't exist, create it immediately
+            db.collection("users").doc(user.uid).onSnapshot(doc => {
+                if(!doc.exists) {
+                    createUserData(user.uid, user.displayName, user.email, "");
+                    return;
+                }
+                const d = doc.data();
+                document.getElementById('bal-disp').innerText = d.balance.toFixed(2);
+                document.getElementById('daily-ads').innerText = d.dailyAds || 0;
+                adProgress = d.adProgress || 0;
+                lastAd = d.lastAdTime || 0;
+                longCooldownEnd = d.longCooldownEnd || 0;
+                checkStatus();
+                updateUI();
+            });
+            
+            // HISTORY FIX: Catch Index Error
+            db.collection("withdrawals").where("userId", "==", user.uid).orderBy("date", "desc").limit(5).onSnapshot(s => {
+                const histDiv = document.getElementById('history-list');
+                histDiv.innerHTML = '';
+                s.forEach(d => {
+                    const data = d.data();
+                    histDiv.innerHTML += `<div style="background:#f9f9f9; padding:10px; border-radius:8px; margin-bottom:8px; display:flex; justify-content:space-between; font-size:13px"><span>${data.method}</span><span style="font-weight:bold">₹${data.amount}</span><span style="color:${data.status=='paid'?'green':(data.status=='rejected'?'red':'orange')}">${data.status}</span></div>`;
+                });
+            }, error => {
+                // If index error happens, allow time to fix but don't crash app
+                console.log("Index missing, history might be empty: " + error.message);
+            });
+        }
+
+        function updateUI() {
+            document.getElementById('target-ads').innerText = config.adsTarget;
+            document.getElementById('reward-val').innerText = config.rewardPerAd;
+            document.getElementById('withdraw-amount').placeholder = "Min: " + config.minWithdraw;
+            const pct = (adProgress / config.adsTarget) * 100;
+            document.getElementById('prog-fill').style.width = pct + "%";
+            document.getElementById('prog-text').innerText = `${adProgress}/${config.adsTarget}`;
+            const sel = document.getElementById('withdraw-method');
+            if(sel.options.length === 1 && config.paymentMethods) {
+                config.paymentMethods.forEach(m => { const opt = document.createElement('option'); opt.value = m; opt.innerText = m; sel.appendChild(opt); });
+            }
+        }
+
+        function checkStatus() {
+            clearInterval(updateInterval);
+            const now = Date.now();
+            const btn = document.getElementById('watch-btn');
+            const timerBox = document.getElementById('timer-box');
+            const shortTimer = document.getElementById('short-timer');
+
+            if(now < longCooldownEnd) {
+                btn.disabled = true; btn.style.display = "none"; timerBox.style.display = "block"; shortTimer.style.display = "none";
+                updateInterval = setInterval(() => {
+                    const timeLeft = longCooldownEnd - Date.now();
+                    if(timeLeft <= 0) { db.collection("users").doc(user.uid).update({ longCooldownEnd: 0 }); } 
+                    else {
+                        const h = Math.floor((timeLeft / (1000 * 60 * 60)));
+                        const m = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                        const s = Math.floor((timeLeft % (1000 * 60)) / 1000);
+                        document.getElementById('countdown-text').innerText = `${h}h ${m}m ${s}s`;
+                    }
+                }, 1000);
+                return;
+            } 
+            timerBox.style.display = "none"; btn.style.display = "flex";
+
+            const diff = (now - lastAd)/1000;
+            if(diff < config.cooldownTime) {
+                btn.disabled = true; shortTimer.style.display = "block";
+                updateInterval = setInterval(() => {
+                    const rem = Math.ceil(config.cooldownTime - (Date.now() - lastAd)/1000);
+                    if(rem > 0) document.getElementById('time-left').innerText = rem;
+                    else { btn.disabled = false; shortTimer.style.display = "none"; clearInterval(updateInterval); }
+                }, 1000);
+            } else { btn.disabled = false; shortTimer.style.display = "none"; }
+        }
+
+        document.getElementById('watch-btn').onclick = () => {
+            const modal = document.getElementById('ad-modal');
+            const txt = document.getElementById('ad-dur');
+            let t = config.adDuration;
+            modal.style.display = 'flex'; txt.innerText = t;
+            const timer = setInterval(() => { t--; txt.innerText = t; if(t <= 0) { clearInterval(timer); modal.style.display = 'none'; finishAd(); } }, 1000);
+        };
+
+        function finishAd() {
+            const now = Date.now();
+            const newProg = adProgress + 1;
+            let updateData = {
+                adsWatchedTotal: firebase.firestore.FieldValue.increment(1),
+                dailyAds: firebase.firestore.FieldValue.increment(1),
+                lastAdTime: now,
+                adProgress: newProg
+            };
+            if(newProg >= config.adsTarget) {
+                updateData.balance = firebase.firestore.FieldValue.increment(config.rewardPerAd);
+                updateData.adProgress = 0;
+                updateData.longCooldownEnd = now + (14 * 60 * 60 * 1000); 
+                alert(`Target Completed! Reward ₹${config.rewardPerAd} Added.`);
+            }
+            db.collection("users").doc(user.uid).update(updateData);
+        }
+
+        function updatePlaceholder() {
+            const m = document.getElementById('withdraw-method').value;
+            const inp = document.getElementById('withdraw-details');
+            if(m.toLowerCase().includes('upi')) { document.getElementById('account-label').innerText = "UPI ID"; inp.placeholder = "example@upi"; }
+            else if(m) { document.getElementById('account-label').innerText = "Account Number / ID"; inp.placeholder = "Enter Details"; }
+        }
+
+        function requestWithdraw() {
+            const m = document.getElementById('withdraw-method').value;
+            const d = document.getElementById('withdraw-details').value;
+            const a = parseFloat(document.getElementById('withdraw-amount').value);
+            const cur = parseFloat(document.getElementById('bal-disp').innerText);
+
+            if(!m || !d || !a) return alert("Fill all fields");
+            if(a < config.minWithdraw) return alert("Min withdraw is " + config.minWithdraw);
+            if(a > cur) return alert("Insufficient Balance");
+
+            db.collection("withdrawals").add({
+                userId: user.uid, userName: user.displayName, method: m, details: d, amount: a, status: 'pending', date: new Date()
+            }).then(() => {
+                db.collection("users").doc(user.uid).update({ balance: firebase.firestore.FieldValue.increment(-a) });
+                alert("Request Sent!");
+                document.getElementById('withdraw-amount').value = '';
+            });
+        }
+
+        function copyLink() { navigator.clipboard.writeText(document.getElementById('ref-link').innerText); alert("Copied!"); }
+        function shareLink() {
+            const txt = document.getElementById('ref-link').innerText;
+            if(navigator.share) navigator.share({title:'App', text:'Join Now', url:txt}); else copyLink();
+        }
+        function goTab(id, el) {
+            document.querySelectorAll('.content-area').forEach(d=>d.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
+            if(el) el.classList.add('active');
+        }
+    </script>
+</body>
+</html>
