@@ -1,10 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- ✅ ADSGRAM SCRIPT -->
+    <!-- ✅ 1. TELEGRAM OFFICIAL SCRIPT (Important) -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <!-- ✅ 2. ADSGRAM SCRIPT -->
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     
-    <!-- ⚠️ MONETAG SCRIPT -->
+    <!-- 💎 3. RICHADS SCRIPT -->
+    <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
+    <script>
+        window.TelegramAdsController = new TelegramAdsController();
+        window.TelegramAdsController.initialize({
+            pubId: "997172",
+            appId: "5128",
+        });
+    </script>
+    
+    <!-- ⚠️ 4. MONETAG SCRIPT -->
     <script src='//libtl.com/sdk.js' data-zone='10364706' data-sdk='show_10364706'></script>
 
     <meta charset="UTF-8">
@@ -18,99 +31,69 @@
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
+    <!-- CSS Baki Same Rahega... -->
     <style>
+        /* ... Old CSS Code ... */
         /* ✨ NEW SOFT DARK THEME COLORS ✨ */
         :root { 
-            --bg: #18191a;           /* Soft Black (Background) */
-            --card: #242526;         /* Dark Grey (Cards) */
-            --text-main: #e4e6eb;    /* White text */
-            --text-sec: #b0b3b8;     /* Grey text */
-            --primary: #6c5ce7;      /* Purple */
-            --accent: #48dbfb;       /* Light Blue */
-            --input-bg: #3a3b3c;     /* Input fields */
+            --bg: #18191a;           
+            --card: #242526;         
+            --text-main: #e4e6eb;    
+            --text-sec: #b0b3b8;     
+            --primary: #6c5ce7;      
+            --accent: #48dbfb;       
+            --rich-color: #ff9f43;   
+            --input-bg: #3a3b3c;     
         }
-
+        /* ... Baki CSS same rakhna ... */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
-        
         body { background-color: var(--bg); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        
-        /* LOGIN SCREEN - DARK */
         #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 200; display: flex; flex-direction: column; justify-content: center; padding: 30px; }
         #login-screen h2 { color: var(--text-main); }
-        
         .inp-field { width: 100%; padding: 15px; margin-bottom: 15px; border: 1px solid #444; border-radius: 12px; background: var(--input-bg); color: white; outline: none; }
-        .inp-field::placeholder { color: #aaa; }
-        
         .main-btn { background: var(--primary); color: white; width: 100%; padding: 15px; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; margin-top: 10px; }
         .toggle-link { margin-top: 20px; text-align: center; color: var(--accent); font-weight: bold; cursor: pointer; }
-
-        /* HEADER */
         header { background: var(--card); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.2); z-index: 10; border-bottom: 1px solid #333; }
         header span { font-weight: bold; font-size: 18px; color: var(--text-main); }
-
         .content-area { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 90px; display: none; }
         .content-area.active { display: block; }
-        
-        /* CARDS */
         .card { background: var(--card); border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); margin-bottom: 20px; color: var(--text-main); }
         h3, h4 { color: var(--text-main); }
-
-        /* BALANCE BOX */
         .balance-box { text-align: center; padding: 20px; background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: white; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4); }
         .balance-num { font-size: 40px; font-weight: 800; }
-        
-        /* TASK LIST */
         .task-container { display: flex; flex-direction: column; gap: 12px; }
-        .task-card {
-            background: var(--card); padding: 15px; border-radius: 15px;
-            display: flex; align-items: center; justify-content: space-between;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2); position: relative; overflow: hidden;
-            border: 1px solid #333;
-        }
+        .task-card { background: var(--card); padding: 15px; border-radius: 15px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.2); position: relative; overflow: hidden; border: 1px solid #333; }
         .task-left { display: flex; align-items: center; gap: 15px; }
         .task-icon { width: 45px; height: 45px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; }
-        
-        .task-card .task-left div div:first-child { color: var(--text-main); } /* Task Title Color */
-        .task-card .task-left div div:last-child { color: var(--text-sec); }   /* Task Subtitle Color */
-
+        .task-card .task-left div div:first-child { color: var(--text-main); }
+        .task-card .task-left div div:last-child { color: var(--text-sec); }
         .task-btn { padding: 8px 15px; background: var(--primary); color: white; border: none; border-radius: 20px; font-size: 12px; font-weight: bold; cursor: pointer; }
         .task-btn:disabled { background: #555; cursor: not-allowed; color: #aaa; }
-        
         .cooldown-mask { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(24, 25, 26, 0.95); display: none; align-items: center; justify-content: center; color: #ff7675; font-weight: bold; font-size: 14px; z-index: 5; flex-direction: column; text-align: center;}
-
-        /* ADSGRAM SPECIAL STYLE - GLOW */
         .adsgram-card { border: 1px solid #6c5ce7; background: rgba(108, 92, 231, 0.1); }
         .adsgram-card .task-left div div:first-child { color: #a29bfe !important; }
-
-        /* INVITE */
+        .richads-card { border: 1px solid var(--rich-color); background: rgba(255, 159, 67, 0.1); }
+        .richads-card .task-left div div:first-child { color: var(--rich-color) !important; }
         .refer-banner { background: linear-gradient(45deg, #e17055, #fdcb6e); color: white; padding: 20px; border-radius: 15px; display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
         .refer-stats { display: flex; gap: 10px; margin-bottom: 20px; }
         .stat-box { flex: 1; background: var(--card); padding: 15px; border-radius: 12px; text-align: center; border: 1px solid #333; }
         .stat-val { font-size: 20px; font-weight: bold; color: var(--text-main); display: block; }
-        
-        .code-box { 
-            background: var(--input-bg); border: 2px dashed #555; color: var(--text-main); padding: 15px; border-radius: 10px; 
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; 
-        }
+        .code-box { background: var(--input-bg); border: 2px dashed #555; color: var(--text-main); padding: 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .code-text { font-family: monospace; font-size: 24px; letter-spacing: 2px; font-weight: bold; color: var(--accent); }
         .invite-link-box { background: var(--input-bg); padding: 12px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border: 1px solid #444; }
         .link-text { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--text-sec); font-size: 12px; flex: 1; margin-right: 10px; }
         .share-full-btn { width: 100%; background: #0088cc; color: white; padding: 15px; border-radius: 12px; border: none; font-weight: bold; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; }
-
-        /* FORMS */
         .form-select, .form-input { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid #444; border-radius: 10px; background: var(--input-bg); color: white; outline: none; }
         .withdraw-btn { width: 100%; padding: 15px; background: var(--success); color: white; border-radius: 10px; font-weight: bold; border: none; }
-
-        /* NAV */
         .bottom-nav { position: fixed; bottom: 20px; left: 20px; right: 20px; background: var(--card); border: 1px solid #333; border-radius: 20px; display: flex; justify-content: space-around; padding: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.5); z-index: 50; }
         .nav-item { color: #555; font-size: 20px; transition: 0.3s; } 
         .nav-item.active { color: var(--text-main); transform: scale(1.1); text-shadow: 0 0 10px rgba(255,255,255,0.3); }
-        
         #ad-loader { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:999; display:none; justify-content:center; align-items:center; color:white; flex-direction:column; }
     </style>
 </head>
 <body>
-
+    <!-- ... HTML Body same rahega (Copy from previous code) ... -->
+    
     <!-- AUTH -->
     <div id="login-screen">
         <h2 style="margin-bottom:20px; text-align: center;">Welcome</h2>
@@ -137,7 +120,7 @@
             <div style="font-size:12px; margin-top:5px; background:rgba(0,0,0,0.2); display:inline-block; padding:3px 12px; border-radius:15px">Daily Ads: <span id="daily-ads">0</span></div>
         </div>
 
-        <!-- ✅ 1. ADSGRAM SECTION (TOP) -->
+        <!-- 1. ADSGRAM SECTION -->
         <h3 style="margin:0 0 10px 0; color:#a29bfe"><i class="fas fa-star"></i> Video Task</h3>
         <div class="task-container" style="margin-bottom: 20px;">
             <div class="task-card adsgram-card">
@@ -159,12 +142,31 @@
             </div>
         </div>
 
-        <!-- ⚠️ 2. MONETAG SECTION (BOTTOM) -->
-        <h3 style="margin:0 0 15px 0;">Other Tasks</h3>
+        <!-- 2. RICHADS SECTION -->
+        <h3 style="margin:0 0 10px 0; color:var(--rich-color)"><i class="fas fa-gem"></i> RichAds Task</h3>
+        <div class="task-container" style="margin-bottom: 20px;">
+            <div class="task-card richads-card">
+                <div class="task-left">
+                    <div class="task-icon" style="background:var(--rich-color)"><i class="fas fa-ad"></i></div>
+                    <div>
+                        <div style="font-weight:bold">Special Ad</div>
+                        <div style="font-size:12px; color:var(--text-sec)">
+                            Get ₹<span id="rich-reward">0.01</span> | 
+                            <span id="rich-prog">0</span>/<span id="rich-limit">10</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="task-btn" id="btn-rich" onclick="runRichAds()" style="background:var(--rich-color)">Watch</button>
+                <div class="cooldown-mask" id="cd-rich">
+                    <span style="color:#ff7675">Limit Reached!</span>
+                    <span id="tmr-rich" style="font-size:12px; margin-top:5px; color:#aaa">00:00:00</span>
+                </div>
+            </div>
+        </div>
 
+        <!-- 3. MONETAG SECTION -->
+        <h3 style="margin:0 0 15px 0;">Other Tasks</h3>
         <div class="task-container" id="task-list">
-            
-            <!-- TASK 1 (Monetag) -->
             <div class="task-card">
                 <div class="task-left">
                     <div class="task-icon" style="background:#ff7675"><i class="fas fa-play"></i></div>
@@ -176,8 +178,6 @@
                 <button class="task-btn" id="btn-1" onclick="runMonetag(1)">Watch (<span id="prog-1">0</span>)</button>
                 <div class="cooldown-mask" id="cd-1">Wait <span id="tmr-1" style="margin-left:5px">00:00</span></div>
             </div>
-
-            <!-- TASK 2 (Monetag) -->
             <div class="task-card">
                 <div class="task-left">
                     <div class="task-icon" style="background:#74b9ff"><i class="fas fa-robot"></i></div>
@@ -189,8 +189,6 @@
                 <button class="task-btn" id="btn-2" onclick="runMonetag(2)">Start (<span id="prog-2">0</span>)</button>
                 <div class="cooldown-mask" id="cd-2">Wait <span id="tmr-2" style="margin-left:5px">00:00</span></div>
             </div>
-
-            <!-- TASK 3 (Monetag) -->
             <div class="task-card">
                 <div class="task-left">
                     <div class="task-icon" style="background:#fdcb6e"><i class="fas fa-gift"></i></div>
@@ -202,9 +200,7 @@
                 <button class="task-btn" id="btn-3" onclick="runMonetag(3)">Open (<span id="prog-3">0</span>)</button>
                 <div class="cooldown-mask" id="cd-3">Wait <span id="tmr-3" style="margin-left:5px">00:00</span></div>
             </div>
-
         </div>
-        
         <p id="short-timer" style="text-align:center; margin-top:20px; color:gray; display:none; font-size:13px">Please wait <b id="time-left">0</b>s</p>
     </div>
 
@@ -230,25 +226,21 @@
                     <div style="font-size:13px; opacity:0.9">Get ₹0.002 per friend</div>
                 </div>
             </div>
-
             <div class="refer-stats">
                 <div class="stat-box"><span class="stat-val" id="total-ref">0</span><span style="font-size:12px; color:var(--text-sec)">Invites</span></div>
                 <div class="stat-box"><span class="stat-val">₹<span id="ref-earn">0.00</span></span><span style="font-size:12px; color:var(--text-sec)">Earned</span></div>
             </div>
-
             <div class="card">
                 <p style="font-weight:bold; margin-bottom:5px">Your Referral Code</p>
                 <div class="code-box">
                     <span class="code-text" id="user-code">LOADING</span>
                     <i class="far fa-copy" style="cursor:pointer; color:#00b894; font-size:20px" onclick="copyCode()"></i>
                 </div>
-
                 <p style="font-weight:bold; margin-bottom:5px; margin-top:20px">Invite Link</p>
                 <div class="invite-link-box">
                     <div class="link-text" id="ref-link">...</div>
                     <i class="far fa-copy" style="color:var(--accent); font-size:18px; cursor:pointer" onclick="copyLinkURL()"></i>
                 </div>
-                
                 <button class="share-full-btn" onclick="shareLink()">
                     <i class="fab fa-telegram-plane"></i> Share on Telegram
                 </button>
@@ -265,6 +257,12 @@
     <div id="ad-loader"><i class="fas fa-spinner fa-spin" style="font-size:40px"></i><p style="margin-top:20px">Loading Ad...</p></div>
 
     <script>
+        // ✅ TELEGRAM INITIALIZATION (ADDED)
+        if(window.Telegram && window.Telegram.WebApp) {
+            window.Telegram.WebApp.ready();
+            window.Telegram.WebApp.expand();
+        }
+
         const firebaseConfig = {
             apiKey: "AIzaSyBsQkRlJZ52Ukw9AO3M2aO8U_VlGBWgbow",
             authDomain: "new-mini-app.firebaseapp.com",
@@ -291,10 +289,16 @@
             t1_tgt: 10, t1_rwd: 0.02, 
             t2_tgt: 10, t2_rwd: 0.02, 
             t3_tgt: 10, t3_rwd: 0.02, 
-            ag_reward: 0.01, ag_max: 10, ag_hours: 24, // AdsGram Config
+            ag_reward: 0.01, ag_max: 10, ag_hours: 24, // AdsGram
+            rich_reward: 0.01, rich_limit: 10, rich_hours: 5, // 💎 RICHADS DEFAULTS
             minWithdraw: 100, cooldownTime: 10, longCooldownHours: 14, paymentMethods: [] 
         };
-        let userData = { p1:0, p2:0, p3:0, ag_count: 0, ag_cooldown: 0, time1:0, time2:0, time3:0, lastAd:0 };
+        let userData = { 
+            p1:0, p2:0, p3:0, 
+            ag_count: 0, ag_cooldown: 0, 
+            rich_count: 0, rich_cooldown: 0, // 💎 USER DATA FOR RICHADS
+            time1:0, time2:0, time3:0, lastAd:0 
+        };
         
         function toggleAuth() {
             isLogin = !isLogin;
@@ -336,7 +340,9 @@
             db.collection("users").doc(uid).set({
                 name: name, email: email, shortId: shortId,
                 balance: 0, adsWatchedTotal: 0, dailyAds: 0,
-                p1:0, p2:0, p3:0, ag_count:0, ag_cooldown:0,
+                p1:0, p2:0, p3:0, 
+                ag_count:0, ag_cooldown:0,
+                rich_count:0, rich_cooldown:0, // 💎 INIT RICHADS
                 time1:0, time2:0, time3:0, lastAd:0,
                 referralsCount: 0, referralEarnings: 0, referredBy: referredBy || null,
                 joined: new Date().toDateString()
@@ -389,10 +395,17 @@
         }
 
         function updateUI() {
+            // Adsgram
             document.getElementById('ag-reward').innerText = config.ag_reward || 0.01;
             document.getElementById('ag-limit').innerText = config.ag_max || 10;
             document.getElementById('ag-prog').innerText = userData.ag_count || 0;
 
+            // 💎 RichAds UI Updates
+            document.getElementById('rich-reward').innerText = config.rich_reward || 0.01;
+            document.getElementById('rich-limit').innerText = config.rich_limit || 10;
+            document.getElementById('rich-prog').innerText = userData.rich_count || 0;
+
+            // Monetag
             document.getElementById('tgt-1').innerText = config.t1_tgt; document.getElementById('rwd-1').innerText = config.t1_rwd;
             document.getElementById('tgt-2').innerText = config.t2_tgt; document.getElementById('rwd-2').innerText = config.t2_rwd;
             document.getElementById('tgt-3').innerText = config.t3_tgt; document.getElementById('rwd-3').innerText = config.t3_rwd;
@@ -410,13 +423,13 @@
             checkSingleTimer(2, userData.time2, now);
             checkSingleTimer(3, userData.time3, now);
             checkAdsgramTimer(now);
+            checkRichAdsTimer(now); // 💎 Check RichAds Timer
             checkShortCooldown(now);
         }
 
         function checkAdsgramTimer(now) {
             const el = document.getElementById('cd-ag');
             const btn = document.getElementById('btn-ag');
-            
             if(userData.ag_cooldown && now < userData.ag_cooldown) {
                 el.style.display = "flex"; btn.disabled = true;
                 const rem = userData.ag_cooldown - now;
@@ -425,6 +438,23 @@
             } else {
                 if(userData.ag_cooldown && now > userData.ag_cooldown) {
                     db.collection("users").doc(user.uid).update({ ag_count: 0, ag_cooldown: 0 });
+                }
+                el.style.display = "none"; btn.disabled = false;
+            }
+        }
+
+        // 💎 RichAds Timer Function
+        function checkRichAdsTimer(now) {
+            const el = document.getElementById('cd-rich');
+            const btn = document.getElementById('btn-rich');
+            if(userData.rich_cooldown && now < userData.rich_cooldown) {
+                el.style.display = "flex"; btn.disabled = true;
+                const rem = userData.rich_cooldown - now;
+                const h = Math.floor(rem/3600000), m = Math.floor((rem%3600000)/60000), s = Math.floor((rem%60000)/1000);
+                document.getElementById('tmr-rich').innerText = `${h}h ${m}m ${s}s`;
+            } else {
+                if(userData.rich_cooldown && now > userData.rich_cooldown) {
+                    db.collection("users").doc(user.uid).update({ rich_count: 0, rich_cooldown: 0 });
                 }
                 el.style.display = "none"; btn.disabled = false;
             }
@@ -448,7 +478,7 @@
         function checkShortCooldown(now) {
             const diff = (now - (userData.lastAd || 0))/1000;
             const shortTimer = document.getElementById('short-timer');
-            const btns = ['ag',1,2,3].map(i => document.getElementById(`btn-${i}`));
+            const btns = ['ag','rich',1,2,3].map(i => document.getElementById(`btn-${i}`));
             
             if(diff < config.cooldownTime) {
                 btns.forEach(b => b.disabled = true);
@@ -458,6 +488,7 @@
             } else {
                 shortTimer.style.display = "none";
                 if(!document.getElementById('cd-ag').style.display.includes('flex')) document.getElementById('btn-ag').disabled = false;
+                if(!document.getElementById('cd-rich').style.display.includes('flex')) document.getElementById('btn-rich').disabled = false;
                 [1,2,3].forEach(i => {
                     const realEnd = (userData[`time${i}`] || 0) + (config.longCooldownHours * 3600000);
                     if(!userData[`time${i}`] || now > realEnd) document.getElementById(`btn-${i}`).disabled = false;
@@ -488,6 +519,42 @@
             }).catch((result) => {
                 document.getElementById('ad-loader').style.display = "none";
                 alert("Ad skipped or failed.");
+            });
+        }
+
+        // 💎 RICHADS FUNCTION
+        function runRichAds() {
+            if (!window.TelegramAdsController) { alert("Loading RichAds..."); return; }
+            document.getElementById('ad-loader').style.display = "flex";
+
+            // RichAds standard promise-based show method
+            window.TelegramAdsController.show().then(() => {
+                document.getElementById('ad-loader').style.display = "none";
+                
+                // Get config from Admin Panel (Firebase)
+                const reward = config.rich_reward || 0.01;
+                const limit = config.rich_limit || 10;
+                const hours = config.rich_hours || 5;
+
+                let update = { 
+                    balance: firebase.firestore.FieldValue.increment(reward),
+                    rich_count: firebase.firestore.FieldValue.increment(1),
+                    dailyAds: firebase.firestore.FieldValue.increment(1),
+                    lastAd: Date.now()
+                };
+
+                // Check limit
+                if ((userData.rich_count || 0) + 1 >= limit) {
+                    update.rich_cooldown = Date.now() + (hours * 3600000);
+                }
+
+                db.collection("users").doc(user.uid).update(update);
+                alert(`RichAds Watched! ₹${reward} Added.`);
+
+            }).catch((e) => {
+                console.error(e);
+                document.getElementById('ad-loader').style.display = "none";
+                alert("Ad not ready or skipped.");
             });
         }
 
