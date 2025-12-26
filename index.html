@@ -213,7 +213,6 @@
                 <div class="cooldown-mask" id="cd-3">Wait <span id="tmr-3" style="margin-left:5px">00:00</span></div>
             </div>
 
-            <!-- ✅ TASK 4: IN-APP INTERSTITIAL (Replaced Popup) -->
             <div class="task-card">
                 <div class="task-left">
                     <div class="task-icon" style="background:#e84393"><i class="fas fa-mobile-alt"></i></div>
@@ -227,6 +226,29 @@
             </div>
 
         </div>
+
+        <!-- ✅ 4. NEW ADSGRAM SECTION (Block ID: int-20021) -->
+        <h3 style="margin:20px 0 10px 0; color:#a29bfe"><i class="fas fa-bolt"></i> Extra Adsgram</h3>
+        <div class="task-container" style="margin-bottom: 20px;">
+            <div class="task-card adsgram-card">
+                <div class="task-left">
+                    <div class="task-icon" style="background:#6c5ce7"><i class="fas fa-photo-video"></i></div>
+                    <div>
+                        <div style="font-weight:bold">Adsgram Special</div>
+                        <div style="font-size:12px; color:var(--text-sec)">
+                            Get ₹<span id="ag2-reward">0.01</span> | 
+                            <span id="ag2-prog">0</span>/<span id="ag2-limit">10</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="task-btn" id="btn-ag2" onclick="runAdsgram2()" style="background:#6c5ce7">Watch</button>
+                <div class="cooldown-mask" id="cd-ag2">
+                    <span style="color:#ff7675">Limit Reached!</span>
+                    <span id="tmr-ag2" style="font-size:12px; margin-top:5px; color:#aaa">00:00:00</span>
+                </div>
+            </div>
+        </div>
+
         <p id="short-timer" style="text-align:center; margin-top:20px; color:gray; display:none; font-size:13px">Please wait <b id="time-left">0</b>s</p>
     </div>
 
@@ -303,11 +325,15 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // ✅ ADSGRAM INIT
+        // ✅ ADSGRAM INIT (TWO CONTROLLERS)
         let AdController;
+        let AdController2; // New Controller
         document.addEventListener('DOMContentLoaded', () => {
             if(window.Adsgram) {
+                // 1. Existing Rewarded Video
                 AdController = window.Adsgram.init({ blockId: "19792" });
+                // 2. New Interstitial (int-20021)
+                AdController2 = window.Adsgram.init({ blockId: "int-20021" });
             }
         });
 
@@ -318,13 +344,14 @@
             t1_tgt: 10, t1_rwd: 0.02, 
             t2_tgt: 10, t2_rwd: 0.02, 
             t3_tgt: 10, t3_rwd: 0.02,
-            
-            // 🆕 Task 4 Config (In-App)
             t4_tgt: 10, t4_rwd: 0.02,
 
             ag_reward: 0.01, ag_max: 10, ag_hours: 5, 
             rich_reward: 0.01, rich_limit: 10, rich_hours: 5,
             
+            // ✅ New Adsgram Config (int-20021)
+            ag2_reward: 0.01, ag2_max: 10, ag2_hours: 6,
+
             minWithdraw: 100, 
             cooldownTime: 3, // 3 Seconds Interval
             longCooldownHours: 14, 
@@ -335,6 +362,10 @@
             p1:0, p2:0, p3:0, p4:0, 
             ag_count: 0, ag_cooldown: 0, 
             rich_count: 0, rich_cooldown: 0,
+            
+            // ✅ New Adsgram User Data
+            ag2_count: 0, ag2_cooldown: 0,
+
             time1:0, time2:0, time3:0, time4:0,
             lastAd:0 
         };
@@ -383,6 +414,10 @@
                 p1:0, p2:0, p3:0, p4:0, 
                 ag_count:0, ag_cooldown:0,
                 rich_count:0, rich_cooldown:0,
+                
+                // Init new data
+                ag2_count:0, ag2_cooldown:0,
+
                 time1:0, time2:0, time3:0, time4:0,
                 lastAd:0,
                 referralsCount: 0, referralEarnings: 0, referredBy: referredBy || null,
@@ -439,6 +474,11 @@
             document.getElementById('ag-reward').innerText = config.ag_reward || 0.01;
             document.getElementById('ag-limit').innerText = config.ag_max || 10;
             document.getElementById('ag-prog').innerText = userData.ag_count || 0;
+            
+            // ✅ New Adsgram UI
+            document.getElementById('ag2-reward').innerText = config.ag2_reward || 0.01;
+            document.getElementById('ag2-limit').innerText = config.ag2_max || 10;
+            document.getElementById('ag2-prog').innerText = userData.ag2_count || 0;
 
             document.getElementById('rich-reward').innerText = config.rich_reward || 0.01;
             document.getElementById('rich-limit').innerText = config.rich_limit || 10;
@@ -463,12 +503,14 @@
             checkSingleTimer(1, userData.time1, now, config.longCooldownHours);
             checkSingleTimer(2, userData.time2, now, config.longCooldownHours);
             checkSingleTimer(3, userData.time3, now, config.longCooldownHours);
-            
-            // ✅ TASK 4 (7 Hours Cooldown)
             checkSingleTimer(4, userData.time4, now, 7); 
 
             checkAdsgramTimer(now);
             checkRichAdsTimer(now);
+            
+            // ✅ Check Timer for New Adsgram
+            checkAdsgram2Timer(now);
+            
             checkShortCooldown(now);
         }
 
@@ -483,6 +525,23 @@
             } else {
                 if(userData.ag_cooldown && now > userData.ag_cooldown) {
                     db.collection("users").doc(user.uid).update({ ag_count: 0, ag_cooldown: 0 });
+                }
+                el.style.display = "none"; btn.disabled = false;
+            }
+        }
+        
+        // ✅ NEW ADSGRAM TIMER FUNCTION
+        function checkAdsgram2Timer(now) {
+            const el = document.getElementById('cd-ag2');
+            const btn = document.getElementById('btn-ag2');
+            if(userData.ag2_cooldown && now < userData.ag2_cooldown) {
+                el.style.display = "flex"; btn.disabled = true;
+                const rem = userData.ag2_cooldown - now;
+                const h = Math.floor(rem/3600000), m = Math.floor((rem%3600000)/60000), s = Math.floor((rem%60000)/1000);
+                document.getElementById('tmr-ag2').innerText = `${h}h ${m}m ${s}s`;
+            } else {
+                if(userData.ag2_cooldown && now > userData.ag2_cooldown) {
+                    db.collection("users").doc(user.uid).update({ ag2_count: 0, ag2_cooldown: 0 });
                 }
                 el.style.display = "none"; btn.disabled = false;
             }
@@ -523,7 +582,8 @@
         function checkShortCooldown(now) {
             const diff = (now - (userData.lastAd || 0))/1000;
             const shortTimer = document.getElementById('short-timer');
-            const btns = ['ag','rich',1,2,3,4].map(i => document.getElementById(`btn-${i}`));
+            // ✅ Included ag2 in check
+            const btns = ['ag','ag2','rich',1,2,3,4].map(i => document.getElementById(`btn-${i}`));
             
             if(diff < config.cooldownTime) { 
                 btns.forEach(b => b.disabled = true);
@@ -533,6 +593,10 @@
             } else {
                 shortTimer.style.display = "none";
                 if(!document.getElementById('cd-ag').style.display.includes('flex')) document.getElementById('btn-ag').disabled = false;
+                
+                // ✅ Check ag2 mask
+                if(!document.getElementById('cd-ag2').style.display.includes('flex')) document.getElementById('btn-ag2').disabled = false;
+                
                 if(!document.getElementById('cd-rich').style.display.includes('flex')) document.getElementById('btn-rich').disabled = false;
                 
                 [1,2,3,4].forEach(i => {
@@ -562,6 +626,34 @@
                 if ((userData.ag_count || 0) + 1 >= limit) {
                     const cooldownHours = config.ag_hours || 5; 
                     update.ag_cooldown = Date.now() + (cooldownHours * 3600000);
+                }
+                db.collection("users").doc(user.uid).update(update);
+                alert(`Ad Watched! ₹${reward} Added.`);
+            }).catch((result) => {
+                document.getElementById('ad-loader').style.display = "none";
+                alert("Ad skipped or failed.");
+            });
+        }
+        
+        // ✅ NEW ADSGRAM LOGIC (int-20021)
+        function runAdsgram2() {
+            if (!AdController2) { alert("Loading Ads..."); return; }
+            document.getElementById('ad-loader').style.display = "flex";
+
+            AdController2.show().then((result) => {
+                document.getElementById('ad-loader').style.display = "none";
+                const reward = config.ag2_reward || 0.01;
+                const limit = config.ag2_max || 10;
+                let update = { 
+                    balance: firebase.firestore.FieldValue.increment(reward),
+                    ag2_count: firebase.firestore.FieldValue.increment(1),
+                    dailyAds: firebase.firestore.FieldValue.increment(1),
+                    lastAd: Date.now()
+                };
+                // 6 Hour Cooldown logic
+                if ((userData.ag2_count || 0) + 1 >= limit) {
+                    const cooldownHours = config.ag2_hours || 6; 
+                    update.ag2_cooldown = Date.now() + (cooldownHours * 3600000);
                 }
                 db.collection("users").doc(user.uid).update(update);
                 alert(`Ad Watched! ₹${reward} Added.`);
@@ -603,7 +695,6 @@
             document.getElementById('ad-loader').style.display = "flex";
             
             let type;
-            // ✅ TASK 4: YOUR SPECIFIC CODE HERE
             if (id === 4) {
                 type = {
                     type: 'inApp',
