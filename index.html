@@ -488,6 +488,30 @@ button{font-family:inherit;color:inherit}
   let adControllerInt = null;   // Block ID: int-20021 (Interstitial)
   let lastAdTime = 0;
 
+  // Adsgram pacing: after every 30th completed level, pause Adsgram for 10 minutes.
+  // This setting is saved locally and survives a page refresh. RichAds is not changed.
+  const ADSGRAM_PAUSE_KEY = 'pip_adsgram_pause_until_v1';
+  const ADSGRAM_PAUSE_MS = 10 * 60 * 1000;
+  const ADSGRAM_LEVEL_INTERVAL = 30;
+
+  function getAdsgramPauseUntil() {
+    try { return Number(localStorage.getItem(ADSGRAM_PAUSE_KEY) || 0); }
+    catch (e) { return 0; }
+  }
+
+  function isAdsgramCoolingDown() {
+    return Date.now() < getAdsgramPauseUntil();
+  }
+
+  function startAdsgramCooldownAfterLevel(levelNumber) {
+    const level = Number(levelNumber) || 0;
+    if (level > 0 && level % ADSGRAM_LEVEL_INTERVAL === 0) {
+      try { localStorage.setItem(ADSGRAM_PAUSE_KEY, String(Date.now() + ADSGRAM_PAUSE_MS)); }
+      catch (e) {}
+      console.log('Adsgram paused for 10 minutes after level', level);
+    }
+  }
+
   function initAds() {
     if (window.Adsgram) {
       try {
@@ -500,6 +524,8 @@ button{font-family:inherit;color:inherit}
   }
 
   async function showAdsgramInt() {
+    // Do not show Adsgram or replace a suppressed Adsgram impression with RichAds.
+    if (isAdsgramCoolingDown()) return false;
     const now = Date.now();
     if (now - lastAdTime < 2500) return false;
     lastAdTime = now;
@@ -518,6 +544,8 @@ button{font-family:inherit;color:inherit}
   }
 
   async function showAdsgramVideo() {
+    // Adsgram rewarded video follows the same cooldown as Adsgram interstitials.
+    if (isAdsgramCoolingDown()) return false;
     const now = Date.now();
     if (now - lastAdTime < 2500) return false;
     lastAdTime = now;
@@ -2334,6 +2362,8 @@ button{font-family:inherit;color:inherit}
     const coins = 25 + stars * 15;
     save.stars[conf.n] = Math.max(save.stars[conf.n] || 0, stars);
     save.unlocked = Math.min(MAX_LEVEL, Math.max(save.unlocked, conf.n + 1));
+    // Every 30th completed level starts a 10-minute Adsgram-only break.
+    startAdsgramCooldownAfterLevel(conf.n);
     save.coins += coins; 
     
     // Immediate local save & cloud save
