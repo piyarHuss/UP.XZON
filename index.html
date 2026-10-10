@@ -9,11 +9,40 @@
 <!-- RichAds SDK -->
 <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
 <script>
-    window.TelegramAdsController = new TelegramAdsController();
+// RichAds: initialize using the official Telegram Mini App controller API.
+// Keep this independent from Adsgram's level/cooldown rules.
+window.richadsReady = false;
+window.richadsInitError = null;
+window.initRichAds = function () {
+  try {
+    if (window.richadsReady && window.TelegramAdsController) return true;
+    if (typeof window.TelegramAdsController === 'function') {
+      window.TelegramAdsController = new window.TelegramAdsController();
+    } else if (typeof TelegramAdsController === 'function') {
+      window.TelegramAdsController = new TelegramAdsController();
+    } else {
+      throw new Error('RichAds SDK not loaded');
+    }
     window.TelegramAdsController.initialize({
-        pubId: "997172",
-        appId: "5128",
+      pubId: "997172",
+      appId: "5128",
+      debug: false
     });
+    window.richadsReady = true;
+    window.richadsInitError = null;
+    console.log('[RichAds] initialized');
+    return true;
+  } catch (e) {
+    window.richadsReady = false;
+    window.richadsInitError = e;
+    console.warn('[RichAds] initialization failed:', e);
+    return false;
+  }
+};
+window.addEventListener('load', function () {
+  try { if (window.Telegram && window.Telegram.WebApp) window.Telegram.WebApp.ready(); } catch (e) {}
+  setTimeout(function () { if (!window.richadsReady) window.initRichAds(); }, 300);
+});
 </script>
 
 <!-- Firebase SDKs (v10 Compat) -->
@@ -564,18 +593,24 @@ button{font-family:inherit;color:inherit}
   }
 
   async function showRichAds(force = false) {
+    // RichAds is intentionally NOT disabled by the Adsgram 10-minute pause.
     if (!force) {
       const now = Date.now();
       if (now - lastAdTime < 2500) return false;
       lastAdTime = now;
     }
-    if (window.TelegramAdsController && typeof window.TelegramAdsController.show === 'function') {
-      try {
-        await window.TelegramAdsController.show();
-        return true;
-      } catch (err) {
-        console.log("RichAds error/skip:", err);
+    try {
+      if ((!window.richadsReady || !window.TelegramAdsController) && typeof window.initRichAds === 'function') {
+        window.initRichAds();
       }
+      const controller = window.TelegramAdsController;
+      if (controller && typeof controller.triggerInterstitialVideo === 'function') {
+        await controller.triggerInterstitialVideo();
+        return true;
+      }
+      console.warn('[RichAds] triggerInterstitialVideo unavailable; controller may not be initialized');
+    } catch (err) {
+      console.warn('[RichAds] ad request failed:', err);
     }
     return false;
   }
