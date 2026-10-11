@@ -48,7 +48,6 @@ window.addEventListener('load', function () {
 <!-- Firebase SDKs (v10 Compat) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 
 <!-- Three.js & GLTF Loader for 3D GLB Models -->
@@ -225,6 +224,10 @@ button{font-family:inherit;color:inherit}
 .offline-card{width:min(390px,100%);background:linear-gradient(180deg,#302472 0%,#191244 100%);border:3px solid var(--gold);border-radius:28px;padding:34px 22px 24px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.7)}
 .offline-icon-box{width:86px;height:86px;margin:0 auto 16px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ff6e58,#c72222);box-shadow:0 0 0 6px rgba(255,95,75,.25),0 10px 28px rgba(200,30,30,.48);display:grid;place-items:center}
 .offline-icon-box svg{width:44px;height:44px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.offline-overlay[data-state="loading"] .offline-icon-box{background:linear-gradient(135deg,#7c6cff,#4f46e5);box-shadow:0 0 0 6px rgba(124,108,255,.22),0 10px 28px rgba(79,70,229,.42)}
+.offline-overlay[data-state="loading"] .offline-icon-box svg{display:none}
+.offline-overlay[data-state="loading"] .offline-icon-box:after{content:"";width:42px;height:42px;border:4px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:cloudspin .8s linear infinite}
+@keyframes cloudspin{to{transform:rotate(360deg)}}
 .offline-status{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:999px;font-size:12px;font-weight:800;text-transform:uppercase;background:rgba(255,80,80,.18);color:#ff9898;border:1.5px solid rgba(255,80,80,.35);margin-bottom:22px}
 .offline-status.online{background:rgba(91,227,161,.18);color:var(--good);border-color:rgba(91,227,161,.45)}
 .offline-status .dot{width:8px;height:8px;border-radius:50%;background:currentColor;box-shadow:0 0 8px currentColor}
@@ -332,7 +335,7 @@ button{font-family:inherit;color:inherit}
   'use strict';
 
   /* =====================================================================
-     ⭐ DUAL CLOUD FIRESTORE + REALTIME DB + PERMANENT LOCAL CACHE ⭐
+     FIREBASE-ONLY CLOUD SAVE (NO LOCALSTORAGE)
      ===================================================================== */
   const firebaseConfig = {
     apiKey: "AIzaSyBsQkRlJZ52Ukw9AO3M2aO8U_VlGBWgbow",
@@ -345,168 +348,119 @@ button{font-family:inherit;color:inherit}
     measurementId: "G-DDQYD6QFS9"
   };
 
-  let fbApp = null, fbAuth = null, fsDb = null, fbDb = null;
-  let fbUserId = null, fbLoaded = false;
+  let fbApp = null, fbAuth = null, fbDb = null;
+  let fbUserId = null, fbLoaded = false, firebaseConnected = false;
   let saveDebounceTimer = null;
-
-  // In-memory player save object with IMMEDIATE LOCAL STORAGE persistence
   const DEFAULTS = { unlocked: 1, stars: {}, coins: 150, hammer: 3, shuffle: 3, sfx: true, music: true };
   let save = Object.assign({}, DEFAULTS);
 
-  const LS_KEY = 'pip_rescue_save_v2';
-  function saveToLocal() {
-    try {
-      localStorage.setItem(LS_KEY, JSON.stringify(save));
-    } catch(e){}
+  function setConnectionUI(state, message) {
+    const overlay = $('offlineScreen'), status = $('offlineStatus');
+    const statusText = $('offlineStatusText'), msg = $('offlineMsg'), btn = $('btnRetryConn');
+    if (!overlay || !status || !statusText || !msg || !btn) return;
+    overlay.hidden = state === 'ready';
+    overlay.dataset.state = state;
+    const heading = overlay.querySelector('h2');
+    if (heading) heading.textContent = state === 'loading' ? 'Loading Game' : (state === 'ready' ? 'Cloud Save Ready' : 'Connection Lost');
+    status.classList.toggle('online', state === 'ready');
+    statusText.textContent = state === 'ready' ? 'ONLINE · CLOUD SYNCED' : (state === 'loading' ? 'CONNECTING' : 'OFFLINE');
+    msg.textContent = message || (state === 'ready'
+      ? 'Your progress is securely synced with the cloud.'
+      : state === 'loading' ? 'Connecting to the game server and loading your saved progress…'
+      : 'Connection to the game server was lost. Reconnect to continue playing.');
+    btn.textContent = state === 'ready' ? 'Continue Game' : 'Reconnect';
+    btn.disabled = state === 'loading';
   }
-  function loadFromLocal() {
-    try {
-      const raw = localStorage.getItem(LS_KEY);
-      if (raw) {
-        const d = JSON.parse(raw);
-        if (d && typeof d === 'object') {
-          if (typeof d.unlocked === 'number' && d.unlocked > save.unlocked) save.unlocked = d.unlocked;
-          if (d.stars) save.stars = Object.assign({}, save.stars, d.stars);
-          if (typeof d.coins === 'number') save.coins = d.coins;
-          if (typeof d.hammer === 'number') save.hammer = d.hammer;
-          if (typeof d.shuffle === 'number') save.shuffle = d.shuffle;
-          if (typeof d.sfx === 'boolean') save.sfx = d.sfx;
-          if (typeof d.music === 'boolean') save.music = d.music;
-        }
-      }
-    } catch(e){}
-  }
-
-  // Load saved levels immediately so game NEVER resets to level 1 on refresh
-  loadFromLocal();
 
   function applyLoadedData(data) {
-    if (!data) return;
+    if (data && typeof data === 'object') {
+      if (typeof data.unlocked === 'number') save.unlocked = Math.max(1, data.unlocked);
+      if (data.stars && typeof data.stars === 'object') save.stars = Object.assign({}, data.stars);
+      if (typeof data.coins === 'number') save.coins = data.coins;
+      if (typeof data.hammer === 'number') save.hammer = data.hammer;
+      if (typeof data.shuffle === 'number') save.shuffle = data.shuffle;
+      if (typeof data.sfx === 'boolean') save.sfx = data.sfx;
+      if (typeof data.music === 'boolean') save.music = data.music;
+    }
     fbLoaded = true;
-    // Always keep the HIGHEST level unlocked (never allow cloud to downgrade local level)
-    if (typeof data.unlocked === 'number') save.unlocked = Math.max(save.unlocked, data.unlocked);
-    if (data.stars && typeof data.stars === 'object') save.stars = Object.assign({}, save.stars, data.stars);
-    if (typeof data.coins === 'number') save.coins = Math.max(save.coins, data.coins);
-    if (typeof data.hammer === 'number') save.hammer = Math.max(save.hammer, data.hammer);
-    if (typeof data.shuffle === 'number') save.shuffle = Math.max(save.shuffle, data.shuffle);
-    if (typeof data.sfx === 'boolean') save.sfx = data.sfx;
-    if (typeof data.music === 'boolean') save.music = data.music;
-    
-    saveToLocal(); // Keep local up to date
     $('hCoins').textContent = save.coins;
     $('mCoins').textContent = save.coins;
     refreshTools();
     if (screen === 'map') buildMap();
     updateAtomixBadge();
+    setConnectionUI('ready');
+    writeSave();
   }
 
   function writeSave() {
-    saveToLocal(); // Synchronously save locally right away
-    if (!fbUserId) return;
+    if (!fbUserId || !fbDb || !firebaseConnected || !fbLoaded) return;
     clearTimeout(saveDebounceTimer);
     saveDebounceTimer = setTimeout(() => {
       const payload = {
         playerId: fbUserId,
-        telegramUser: tgUser ? { id: tgUser.id, username: tgUser.username || '', name: (tgUser.first_name || '') } : null,
-        unlocked: save.unlocked,
-        stars: save.stars,
-        coins: save.coins,
-        hammer: save.hammer,
-        shuffle: save.shuffle,
-        sfx: save.sfx,
-        music: save.music,
+        telegramUser: tgUser ? { id: tgUser.id, username: tgUser.username || '', name: tgUser.first_name || '' } : null,
+        unlocked: save.unlocked, stars: save.stars, coins: save.coins,
+        hammer: save.hammer, shuffle: save.shuffle, sfx: save.sfx, music: save.music,
         lastUpdated: Date.now()
       };
-
-      // 1. Try Cloud Firestore
-      if (fsDb) {
-        fsDb.collection('pips_players').doc(fbUserId).set(payload, { merge: true }).catch(() => {});
-      }
-      // 2. Try Realtime Database fallback
-      if (fbDb) {
-        fbDb.ref('pips_players/' + fbUserId).update(payload).catch(() => {});
-      }
-    }, 250);
+      fbDb.ref('pips_players/' + fbUserId).update(payload).catch(err => {
+        console.error('[Firebase] Save failed:', err);
+        fbLoaded = false;
+        setConnectionUI('offline', 'Could not save your progress to the cloud. Check your connection and reconnect.');
+      });
+    }, 180);
   }
 
   function loadDataFromFirebase() {
-    if (!fbUserId) return;
-
-    // Load from Cloud Firestore first
-    if (fsDb) {
-      fsDb.collection('pips_players').doc(fbUserId).get().then(doc => {
-        if (doc && doc.exists) {
-          applyLoadedData(doc.data());
-        } else {
-          writeSave();
-        }
-      }).catch(err => {
-        console.warn("Firestore read:", err.message);
-        if (fbDb) {
-          fbDb.ref('pips_players/' + fbUserId).once('value').then(snap => {
-            if (snap && snap.exists()) applyLoadedData(snap.val());
-            else writeSave();
-          }).catch(() => {});
-        }
-      });
-    } else if (fbDb) {
-      fbDb.ref('pips_players/' + fbUserId).once('value').then(snap => {
-        if (snap && snap.exists()) applyLoadedData(snap.val());
-        else writeSave();
-      }).catch(() => {});
-    }
+    if (!fbUserId || !fbDb || !firebaseConnected) return;
+    fbLoaded = false;
+    setConnectionUI('loading');
+    fbDb.ref('pips_players/' + fbUserId).once('value').then(snap => {
+      if (!firebaseConnected) return;
+      applyLoadedData(snap && snap.exists() ? snap.val() : null);
+    }).catch(err => {
+      console.error('[Firebase] Load failed:', err);
+      setConnectionUI('offline', 'Unable to load your cloud save. Check Firebase Realtime Database rules and your internet connection, then retry.');
+    });
   }
 
   function setupPlayerIdentity(authUid) {
-    if (tgUser && tgUser.id) {
-      fbUserId = 'tg_' + tgUser.id;
-    } else if (atomixUid) {
-      fbUserId = 'atomix_' + atomixUid;
-    } else if (authUid) {
-      fbUserId = 'anon_' + authUid;
-    } else {
-      let localUid = localStorage.getItem('pip_player_id');
-      if (!localUid) {
-        localUid = 'player_' + Math.floor(100000 + Math.random() * 900000);
-        try { localStorage.setItem('pip_player_id', localUid); } catch(e){}
-      }
-      fbUserId = localUid;
+    if (tgUser && tgUser.id) fbUserId = 'tg_' + tgUser.id;
+    else if (atomixUid) fbUserId = 'atomix_' + atomixUid;
+    else if (authUid) fbUserId = 'anon_' + authUid;
+    else {
+      setConnectionUI('offline', 'Secure player sign-in failed. Enable Firebase Anonymous Authentication and reconnect.');
+      return;
     }
     loadDataFromFirebase();
   }
 
   function initFirebase() {
+    setConnectionUI('loading');
     try {
-      if (typeof firebase !== 'undefined' && firebase && firebase.apps) {
-        if (!firebase.apps.length) {
-          fbApp = firebase.initializeApp(firebaseConfig);
-        } else {
-          fbApp = firebase.app();
+      if (typeof firebase === 'undefined' || !firebase.apps) throw new Error('Firebase SDK did not load');
+      fbApp = firebase.apps.length ? firebase.app() : firebase.initializeApp(firebaseConfig);
+      fbDb = firebase.database();
+      fbAuth = firebase.auth();
+      fbDb.ref('.info/connected').off();
+      fbDb.ref('.info/connected').on('value', snap => {
+        firebaseConnected = snap.val() === true;
+        if (!firebaseConnected) {
+          fbLoaded = false;
+          setConnectionUI('offline', 'No live server connection. Your game is paused until cloud connection returns.');
+          return;
         }
-
-        if (firebase.firestore) {
-          try { fsDb = firebase.firestore(); } catch(e){}
-        }
-        if (firebase.database) {
-          try { fbDb = firebase.database(); } catch(e){}
-        }
-
-        if (firebase.auth) {
-          fbAuth = firebase.auth();
-          fbAuth.signInAnonymously().then((cred) => {
-            setupPlayerIdentity(cred.user.uid);
-          }).catch(() => {
-            setupPlayerIdentity(null);
-          });
-        } else {
-          setupPlayerIdentity(null);
-        }
-      } else {
-        setupPlayerIdentity(null);
-      }
-    } catch(e) {
-      console.warn("Firebase init note:", e.message);
-      setupPlayerIdentity(null);
+        if (fbAuth && fbAuth.currentUser) setupPlayerIdentity(fbAuth.currentUser.uid);
+      });
+      fbAuth.signInAnonymously().then(cred => {
+        setupPlayerIdentity(cred.user.uid);
+      }).catch(err => {
+        console.error('[Firebase] Sign-in failed:', err);
+        setConnectionUI('offline', 'Player sign-in failed. Enable Firebase Anonymous Authentication in Firebase Console and check your internet connection.');
+      });
+    } catch (err) {
+      console.error('[Firebase] Init failed:', err);
+      setConnectionUI('offline', 'Could not connect to Firebase. Check your internet connection and Firebase configuration.');
     }
   }
 
@@ -519,24 +473,18 @@ button{font-family:inherit;color:inherit}
 
   // Adsgram pacing: after every 30th completed level, pause Adsgram for 10 minutes.
   // This setting is saved locally and survives a page refresh. RichAds is not changed.
-  const ADSGRAM_PAUSE_KEY = 'pip_adsgram_pause_until_v1';
+  let adsgramPauseUntil = 0;
   const ADSGRAM_PAUSE_MS = 10 * 60 * 1000;
   const ADSGRAM_LEVEL_INTERVAL = 30;
 
-  function getAdsgramPauseUntil() {
-    try { return Number(localStorage.getItem(ADSGRAM_PAUSE_KEY) || 0); }
-    catch (e) { return 0; }
-  }
-
   function isAdsgramCoolingDown() {
-    return Date.now() < getAdsgramPauseUntil();
+    return Date.now() < adsgramPauseUntil;
   }
 
   function startAdsgramCooldownAfterLevel(levelNumber) {
     const level = Number(levelNumber) || 0;
     if (level > 0 && level % ADSGRAM_LEVEL_INTERVAL === 0) {
-      try { localStorage.setItem(ADSGRAM_PAUSE_KEY, String(Date.now() + ADSGRAM_PAUSE_MS)); }
-      catch (e) {}
+      adsgramPauseUntil = Date.now() + ADSGRAM_PAUSE_MS;
       console.log('Adsgram paused for 10 minutes after level', level);
     }
   }
@@ -3038,21 +2986,28 @@ button{font-family:inherit;color:inherit}
   });
 
   /* =====================================================================
-     Connection Screen
+     Online-only connection screen
      ===================================================================== */
   const offlineOverlay = $('offlineScreen'), btnRetryConn = $('btnRetryConn');
-  function showOfflineScreen() { if (offlineOverlay) offlineOverlay.hidden = false; }
-  function hideOfflineScreen() { if (offlineOverlay) offlineOverlay.hidden = true; }
+  function showOfflineScreen() { setConnectionUI('offline'); }
+  function hideOfflineScreen() { if (fbLoaded && firebaseConnected) setConnectionUI('ready'); }
 
   if (btnRetryConn) {
     btnRetryConn.addEventListener('click', () => {
       ensureAudio();
-      hideOfflineScreen();
+      if (!navigator.onLine) {
+        setConnectionUI('offline', 'Your device is offline. Turn on Wi-Fi or mobile data and retry.');
+        return;
+      }
       initFirebase();
-      toast('Ready to play!');
     });
   }
 
+  window.addEventListener('online', () => initFirebase());
+  window.addEventListener('offline', () => {
+    fbLoaded = false;
+    setConnectionUI('offline', 'Internet connection lost. Reconnect to load your cloud save and continue.');
+  });
   window.addEventListener('beforeunload', () => writeSave());
   window.addEventListener('pagehide', () => writeSave());
 
@@ -3078,7 +3033,7 @@ button{font-family:inherit;color:inherit}
   }
   
   refreshTools();
-  hideOfflineScreen();
+  setConnectionUI('loading');
   initFirebase();
   initAds();
   initToolIcons();
